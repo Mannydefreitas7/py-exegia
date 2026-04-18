@@ -1,0 +1,25 @@
+[project]
+name = "biblepedia-backend"
+version = "1.0.0"
+description = "BiblePedia API — Bible data API compatible with bible.helloao.org"
+requires-python = ">=3.12"
+dependencies = [
+	"fastapi[standard]>=0.115.0",
+	"sqlalchemy[asyncio]>=2.0.0",
+	"asyncpg>=0.29.0",
+	"alembic>=1.13.0",
+	"supabase>=2.0.0",
+	"pydantic-settings>=2.0.0",
+	"ebooklib>=0.18",
+	"python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+dev = "fastapi dev app/main.py"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

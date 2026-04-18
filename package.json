@@ -1,0 +1,34 @@
+{
+  "name": "@biblepedia/backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "python3 -m venv .venv && .venv/bin/pip install --quiet -r requirements.txt && touch .venv/.turbo-installed",
+    "build": "docker build -t biblepedia-backend .",
+    "dev": ".venv/bin/python -m app.main",
+    "db:start": "supabase status > /dev/null 2>&1 || dotenvx run -fk ../../.env.keys -f .env.development -- supabase start",
+    "db:stop": "supabase stop",
+    "stop": "pkill -f 'app.main' || true",
+    "db:reset": "supabase db reset",
+    "db:migrate": "supabase migration up",
+    "db:pull": "dotenvx run -fk ../../.env.keys -f .env.development -- supabase db pull",
+    "db:push": "dotenvx run -fk ../../.env.keys -f .env.development -- supabase db push",
+    "db:diff": "supabase db diff --schema public",
+    "db:new": "supabase migration new",
+    "env:encrypt": "dotenvx encrypt -fk ../../.env.keys -f .env.development",
+    "env:decrypt": "dotenvx decrypt -fk ../../.env.keys -f .env.development",
+    "pgadmin": "docker compose up -d",
+    "pgadmin:stop": "docker compose down",
+    "clean": "rm -rf .venv **/__pycache__ .ruff_cache",
+    "mcp:setup": ".venv/bin/python setup_mcp.py",
+    "mcp:setup:import": ".venv/bin/python setup_mcp.py --import",
+    "mcp:import": ".venv/bin/python -m app.scripts.import_corpus",
+    "mcp:import:bibles": ".venv/bin/python setup_mcp.py --import --type bible",
+    "mcp:import:original": ".venv/bin/python setup_mcp.py --import --type original",
+    "mcp:import:commentaries": ".venv/bin/python setup_mcp.py --import --type commentary",
+    "mcp:test": ".venv/bin/python test_mcp_integration.py"
+  },
+  "dependencies": {
+    "supabase": "^2.92.1"
+  }
+}
