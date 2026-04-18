@@ -11,6 +11,8 @@ dist
 coverage
 *.lcov
 
+**/*.sql
+
 # logs
 logs
 _.log
