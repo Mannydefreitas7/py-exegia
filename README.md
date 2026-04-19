@@ -1,390 +1,260 @@
-# BiblePedia API with Context-Fabric MCP Integration
+# Exegia API
 
-A comprehensive Bible API that combines compatibility with bible.helloao.org endpoints and powerful Context-Fabric MCP (Model Context Protocol) integration for advanced biblical text corpus analysis.
+> Backend API for a desktop Bible study application with Text-Fabric dataset support
 
-## Features
+## Overview
 
-### Bible API
+This API serves as the backend for a desktop Bible study application with Text-Fabric dataset support.
 
-- ✅ **bible.helloao.org compatible** - Drop-in replacement for existing Bible API clients
-- 📖 **Multiple translations** - KJV, ESV, ASV, NET, and many more
-- 🌍 **Original languages** - Hebrew (OHG) and Greek (SBLGNT) texts
-- 📚 **Commentaries & lexicons** - Rich theological resources
-- 🔍 **Sefaria.org proxy** - Access Jewish texts and Torah study materials
+**Core Technologies:**
 
-### Context-Fabric MCP Integration (New!)
+- **FastAPI** - REST endpoints
+- **Strawberry GraphQL** - Primary API layer
+- **Context-Fabric** - Corpus query engine
+- **Supabase** - Database, storage, and authentication
 
-- 🤖 **AI-powered queries** - Natural language search with Claude and other AI assistants
-- 🔎 **Advanced search** - Pattern-based queries with linguistic features
-- 📊 **Corpus analysis** - Morphology, syntax, and semantic annotations
-- 🔗 **Cross-references** - Discover related passages and themes
-- 💾 **Supabase storage** - Fast, scalable PostgreSQL backend
-- ⚡ **Performance** - Cached queries and optimized indexes
+## Quick Links
 
-## Quick Start
+### Module Documentation
 
-### Prerequisites
+- **[GraphQL API](app/graphql/CLAUDE.md)** - Strawberry GraphQL schema, types, resolvers
+- **[Corpus Integration](app/corpus/CLAUDE.md)** - Context-Fabric integration and queries
+- **[Storage Service](app/storage/CLAUDE.md)** - Supabase storage for datasets
+- **[Database Models](app/models/CLAUDE.md)** - SQLAlchemy models and schema
+- **[REST Routers](app/routers/CLAUDE.md)** - FastAPI REST endpoints
+- **[Supabase](supabase/CLAUDE.md)** - Database migrations and edge functions
 
-- [Bun](https://bun.sh) (already configured)
-- Python 3.12+
-- Docker Desktop (for Supabase)
-- External drive with Bible data at `/Volumes/External HD/biblemate/`
+## Architecture
 
-### 5-Minute Setup
-
-```bash
-cd api
-
-# 1. Install Python dependencies
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 2. Install Bun dependencies
-bun install
-
-# 3. Start Supabase
-bun run db:start
-
-# 4. Run migrations
-bun run db:reset
-
-# 5. Start the API
-bun run dev
-```
-
-**API is now running at:** https://localhost:8000
-
-### Import Bible Data
-
-```bash
-# Quick: Import just the KJV (~30 seconds)
-bun run mcp:import:bibles
-
-# Full: Import all corpora (~20-30 minutes)
-bun run mcp:setup:import
-```
-
-## Documentation
-
-📚 **[Quick Start Guide](./QUICKSTART.md)** - Get up and running in 5 minutes
-
-🔧 **[MCP Setup Guide](./MCP_SETUP.md)** - Complete Context-Fabric MCP documentation:
-
-- Architecture and data flow
-- API endpoints reference
-- Claude Desktop integration
-- Performance optimization
-- Troubleshooting
-
-🌐 **[API Documentation](https://localhost:8000/docs)** - Interactive Swagger UI (when server is running)
-
-🎨 **[GraphQL Guide](./GRAPHQL_GUIDE.md)** - Complete GraphQL API guide:
-
-- Two GraphQL endpoints
-- Example queries and mutations
-- Client integration examples
-- Schema introspection
-
-## API Endpoints
-
-### Bible API (bible.helloao.org compatible)
+### System Components
 
 ```
-GET  /api/{translation}/books
-GET  /api/{translation}/{book}/chapters
-GET  /api/{translation}/{book}/{chapter}
-GET  /api/available_commentaries
-GET  /api/available_datasets
+┌─────────────────────────────────────────────────────────────┐
+│                    Desktop Client App                       │
+│              (Electrobun, Tauri, or Native)                 │
+└───────────────────┬─────────────────────────────────────────┘
+                    │
+                    │ GraphQL / REST
+                    │
+┌───────────────────▼─────────────────────────────────────────┐
+│                  Exegia API (FastAPI)                       │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │         Strawberry GraphQL (Primary)                │    │
+│  │  • Corpus queries (user-friendly)                   │    │
+│  │  • User data (notes, favorites)                     │    │
+│  │  • Dataset management                               │    │
+│  └─────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │         REST Endpoints (Legacy/Compat)              │    │
+│  │  • Dataset downloads                                │    │
+│  │  • Health checks                                    │    │
+│  └─────────────────────────────────────────────────────┘    │
+└───────────────────┬─────────────────┬───────────────────────┘
+                    │                 │
+        ┌───────────▼─────┐    ┌─────▼──────────┐
+        │  Supabase       │    │ Context-Fabric │
+        │  • Database     │    │ • Local .tf    │
+        │  • Storage      │    │   datasets     │
+        │  • Auth         │    │ • Query engine │
+        └─────────────────┘    └────────────────┘
 ```
 
-### Context-Fabric MCP API
+### Data Flow
 
-```
-GET  /api/mcp/corpora                          # List available corpora
-GET  /api/mcp/corpora/{name}                   # Get corpus details
-POST /api/mcp/corpora/{name}/search            # Search corpus
-POST /api/mcp/corpora/{name}/passages          # Get passages
-GET  /api/mcp/corpora/{name}/cross-references  # Get cross-references
-```
+1. **User browses datasets** → GraphQL query → Supabase Storage metadata
+2. **User downloads dataset** → ZIP from Supabase Storage → Extract locally
+3. **User queries corpus** → GraphQL → Context-Fabric → Local .tf files
+4. **User saves note** → GraphQL mutation → Supabase Database
 
-### GraphQL API
+## Development Stack
 
-```
-GET/POST  /corpus/graphql       # Context-Fabric GraphQL (Strawberry)
-GET/POST  /api/graphql          # Supabase GraphQL (pg_graphql)
-GET       /api/graphql/schema   # Supabase schema introspection
-```
+### Python (Backend)
 
-### Sefaria Proxy
+Python 3.12+ for the FastAPI backend:
 
-```
-GET  /api/texts/*
-GET  /api/index/*
-GET  /api/related/*
-```
+- **FastAPI** - Web framework
+- **Strawberry GraphQL** - GraphQL schema and resolvers
+- **Context-Fabric** - Text-Fabric corpus analysis
+- **Supabase Python Client** - Database and storage operations
+- **SQLAlchemy** - ORM for database models
 
-## Usage Examples
+### Bun (Tooling & Scripts)
 
-### Get a Bible Verse
+Default to using Bun for Node.js scripts and tooling:
 
-```bash
-curl https://localhost:8000/api/KJV/John/3
-```
+- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
+- Use `bun test` instead of `jest` or `vitest`
+- Use `bun install` instead of `npm install`
+- Use `bun run <script>` instead of `npm run <script>`
+- Use `bunx <package>` instead of `npx <package>`
+- Bun automatically loads .env, so don't use dotenv
 
-### Search for "love" in KJV
-
-```bash
-curl -X POST https://localhost:8000/api/mcp/corpora/KJV/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "love", "limit": 10}'
-```
-
-### Get Multiple Passages
-
-```bash
-curl -X POST https://localhost:8000/api/mcp/corpora/KJV/passages \
-  -H "Content-Type: application/json" \
-  -d '{"references": ["John 3:16", "Romans 8:28"]}'
-```
-
-### GraphQL: Query Corpora (Context-Fabric)
-
-```bash
-curl -X POST https://localhost:8000/corpus/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ corpora(first: 10) { edges { node { name corpusType language } } totalCount } }"
-  }'
-```
-
-### GraphQL: Search Verses (Strawberry)
-
-```bash
-curl -X POST https://localhost:8000/corpus/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "query { search(corpusName: \"KJV\", searchInput: { query: \"love\", limit: 10 }) { edges { node { reference textContent } } totalCount } }"
-  }'
-```
-
-### GraphQL: Direct Database Query (Supabase)
-
-```bash
-curl -X POST https://localhost:8000/api/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ corporaCollection(first: 10, filter: { corpusType: { eq: \"bible\" } }) { edges { node { name language } } } }"
-  }'
-```
-
-## Development
-
-### Available Scripts
-
-```bash
-# API Development
-bun run dev              # Start development server
-bun run build           # Build Docker image
-
-# Database
-bun run db:start        # Start Supabase
-bun run db:stop         # Stop Supabase
-bun run db:reset        # Reset database with migrations
-bun run db:migrate      # Run pending migrations
-bun run db:new          # Create new migration
-
-# MCP Integration
-bun run mcp:setup       # Setup MCP integration
-bun run mcp:import      # Import all corpus data
-bun run mcp:test        # Run integration tests
-
-# Utilities
-bun run clean           # Remove cache and build files
-```
-
-### Project Structure
+## Project Structure
 
 ```
 api/
 ├── app/
-│   ├── mcp/                  # Context-Fabric MCP service
-│   ├── routers/              # API route handlers
-│   │   ├── mcp.py           # MCP API endpoints
-│   │   ├── graphql_supabase.py  # Supabase GraphQL proxy
-│   │   ├── translations.py   # Bible API endpoints
-│   │   └── sefaria.py       # Sefaria proxy
-│   ├── graphql/              # GraphQL schema and resolvers
-│   │   ├── schema.py        # Strawberry GraphQL schema
-│   │   ├── types.py         # GraphQL type definitions
-│   │   ├── resolvers.py     # Query/Mutation resolvers
-│   │   └── supabase_proxy.py # Supabase GraphQL client
-│   ├── scripts/
-│   │   └── import_corpus/   # Data import scripts
-│   ├── config.py            # Configuration
-│   ├── database.py          # Database connections
-│   └── main.py              # FastAPI application
-├── supabase/
-│   ├── migrations/          # Database schema
-│   └── config.toml          # Supabase configuration
-├── setup_mcp.py             # MCP setup script
-├── test_mcp_integration.py  # Integration tests
-├── QUICKSTART.md            # Quick start guide
-└── MCP_SETUP.md             # Full MCP documentation
+│   ├── graphql/              # → See app/graphql/CLAUDE.md
+│   │   ├── schema.py         # Main Strawberry schema
+│   │   ├── types/            # GraphQL types
+│   │   └── resolvers/        # Query/Mutation resolvers
+│   ├── corpus/               # → See app/corpus/CLAUDE.md
+│   │   ├── manager.py        # Corpus loading and caching
+│   │   └── query.py          # Query utilities
+│   ├── storage/              # → See app/storage/CLAUDE.md
+│   │   ├── datasets.py       # Dataset download/upload
+│   │   └── git_fetch.py      # Git repo fetching
+│   ├── models/               # → See app/models/CLAUDE.md
+│   │   ├── user.py           # User model
+│   │   ├── note.py           # Notes model
+│   │   └── favorite.py       # Favorites model
+│   ├── routers/              # → See app/routers/CLAUDE.md
+│   │   ├── datasets.py       # Dataset management
+│   │   └── user_data.py      # User notes/favorites
+│   ├── auth.py               # Supabase auth integration
+│   ├── config.py             # Configuration
+│   ├── database.py           # Database connections
+│   └── main.py               # FastAPI app entry point
+├── supabase/                 # → See supabase/CLAUDE.md
+│   ├── migrations/           # Database migrations
+│   ├── functions/            # Edge functions
+│   └── config.toml           # Supabase config
+├── docs/                     # Additional documentation
+│   ├── FRIENDLY_QUERIES.md   # Query implementation details
+│   └── QUERY_FLOW.md         # Architecture diagrams
+├── Dockerfile                # Docker build
+├── docker-compose.yml        # Docker services
+└── requirements.txt          # Python dependencies
 ```
 
-## Tech Stack
+## Quick Start
 
-- **Runtime**: [Bun](https://bun.sh) - Fast JavaScript runtime
-- **Framework**: [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
-- **Database**: [Supabase](https://supabase.com) - PostgreSQL with real-time features
-- **Corpus Analysis**: [Context-Fabric](https://context-fabric.ai) - Biblical text corpus framework
-- **GraphQL**: [Strawberry](https://strawberry.rocks) - Python GraphQL library with type annotations
-- **ORM**: SQLAlchemy with async support
-- **MCP**: [Model Context Protocol](https://modelcontextprotocol.io/) - AI integration standard
+### Local Development
 
-## Data Sources
+```bash
+# Install Python dependencies
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-The project uses biblical text data from:
+# Install Bun dependencies
+bun install
 
-- **Bible translations** (KJV, ESV, ASV, NET, etc.) - SQLite `.bible` files
-- **Original language texts** - Hebrew (OHG) and Greek (SBLGNT)
-- **Commentaries** - Various theological commentaries
-- **Lexicons** - Hebrew and Greek lexicons
-- **Cross-references** - Biblical cross-reference data
+# Start Supabase (local)
+bun run db:start
 
-Data location: `/Volumes/External HD/biblemate/data/`
+# Run migrations
+bun run db:migrate
 
-## Configuration
+# Start development server
+bun run dev
+```
+
+Server runs on: **http://localhost:8000**
+
+GraphiQL playground: **http://localhost:8000/graphql**
+
+### Docker Deployment
+
+```bash
+# Build image
+docker build -t exegia-api .
+
+# Run with docker-compose
+docker-compose up -d
+```
 
 ### Environment Variables
 
-Create `.env` file:
+Required in `.env`:
 
 ```env
 # Supabase
-SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_ANON_KEY=xxx
+SUPABASE_SERVICE_ROLE_KEY=xxx
 
 # Database
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@127.0.0.1:54322/postgres
+DATABASE_URL=postgresql://...
 
 # App
 ENVIRONMENT=development
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+CORS_ORIGINS=http://localhost:3000
+
+# Dataset Storage
+DATASETS_BASE_PATH=/app/datasets
 ```
 
-Get Supabase keys with: `bunx supabase status`
+## API Endpoints
+
+### GraphQL (Primary)
+
+- **POST /graphql** - Strawberry GraphQL endpoint
+- **GET /graphql** - GraphiQL interactive playground
+
+See **[app/graphql/CLAUDE.md](app/graphql/CLAUDE.md)** for detailed API documentation.
+
+## Key Principles
+
+1. **GraphQL First**: Primary API is GraphQL, REST for legacy support
+2. **User Data in Supabase**: All user-specific data stored in PostgreSQL
+3. **Datasets in Storage**: Binary datasets (ZIP files) in Supabase Storage buckets
+4. **Local Corpus Access**: Context-Fabric operates on locally extracted datasets
+5. **Auth Required**: All user operations require Supabase authentication
+6. **Offline Capable**: Once downloaded, datasets work without internet
+7. **Type Safety**: Strawberry GraphQL provides full type safety
+
+## User Flow
+
+1. **Desktop app starts** → User authenticates with Supabase
+2. **Browse library** → GraphQL query lists available datasets
+3. **Download dataset** → ZIP from Supabase Storage → Extract locally
+4. **Query corpus** → GraphQL → Context-Fabric → Local .tf files → Results
+5. **Save annotations** → GraphQL mutation → Supabase Database
 
 ## Testing
 
 ```bash
-# Run integration tests
-bun run mcp:test
+# Python tests
+pytest
 
-# Test Supabase connection
-bunx supabase status
+# Bun tests (if applicable)
+bun test
 
-# Check import logs
-# Open http://127.0.0.1:54323 (Supabase Studio)
+# Test GraphQL queries
+# Open http://localhost:8000/graphql and try example queries
 ```
 
-## Claude Desktop Integration
+## Documentation Index
 
-Use Context-Fabric MCP with Claude Desktop for natural language queries:
+### Module-Specific
 
-1. Install: `pip install context-fabric[mcp]`
-2. Configure `claude_desktop_config.json`:
+- **[GraphQL API](app/graphql/CLAUDE.md)** - Schema, types, resolvers, user-friendly queries
+- **[Corpus Integration](app/corpus/CLAUDE.md)** - Context-Fabric API, corpus management
+- **[Storage Service](app/storage/CLAUDE.md)** - Dataset downloads, Supabase Storage
+- **[Database Models](app/models/CLAUDE.md)** - Schema, migrations, models
+- **[REST Routers](app/routers/CLAUDE.md)** - REST endpoints, authentication
+- **[Supabase](supabase/CLAUDE.md)** - Migrations, functions, configuration
 
-```json
-{
-  "mcpServers": {
-    "context-fabric": {
-      "command": "python",
-      "args": ["-m", "context_fabric.mcp"],
-      "env": {
-        "CORPUS_PATH": "/Volumes/External HD/biblemate/data"
-      }
-    }
-  }
-}
-```
+### External Resources
 
-3. Ask Claude: "Search for 'love' in the KJV Bible"
-
-## Database Schema
-
-Key tables:
-
-- `corpora` - Corpus metadata
-- `sections` - Biblical verses and passages
-- `nodes` - Text graph nodes
-- `features` - Linguistic annotations
-- `passages` - Cached passage text
-- `search_queries` - Cached search results (24hr TTL)
-
-See [MCP_SETUP.md](./MCP_SETUP.md) for complete schema documentation.
-
-## Troubleshooting
-
-**Supabase won't start:**
-
-```bash
-docker ps  # Ensure Docker is running
-bun run db:stop && bun run db:start
-```
-
-**Port conflicts:**
-Edit `supabase/config.toml` to change ports
-
-**Import fails:**
-
-- Check external drive is mounted
-- View logs in Supabase Studio (http://127.0.0.1:54323)
-- Check `import_logs` table for errors
-
-**SSL warnings:**
-Use HTTP: `http://localhost:8000/docs` (without 's')
-
-## Performance
-
-- **Caching**: Search queries cached for 24 hours
-- **Indexes**: Full-text search on verses, GIN indexes on JSONB
-- **Pooling**: Connection pooling for database efficiency
-- **Batch imports**: 1000 records per batch
+- **Context-Fabric Core**: https://context-fabric.ai/docs/core
+- **Context-Fabric Graph Model**: https://context-fabric.ai/docs/concepts/graph-model
+- **Strawberry GraphQL**: https://strawberry.rocks
+- **Supabase**: https://supabase.com/docs
+- **FastAPI**: https://fastapi.tiangolo.com
+- **Text-Fabric**: https://github.com/annotation/text-fabric
 
 ## Contributing
 
-1. Create feature branch
-2. Make changes
-3. Create migration: `bun run db:new feature_name`
-4. Test: `bun run mcp:test`
-5. Submit PR
+When adding new features:
+
+1. Update relevant module `CLAUDE.md` file
+2. Add GraphQL types/resolvers for new queries
+3. Update `app/corpus/EXAMPLES.md` if adding query features
+4. Add tests for new functionality
+5. Update this main `CLAUDE.md` if architecture changes
 
 ## License
 
-See project LICENSE file for details.
-
-## Resources
-
-- [Context-Fabric Documentation](https://context-fabric.ai/docs/mcp)
-- [Supabase Documentation](https://supabase.com/docs)
-- [Supabase GraphQL Guide](https://supabase.com/docs/guides/graphql)
-- [Strawberry GraphQL Documentation](https://strawberry.rocks/docs)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [Bun Documentation](https://bun.sh/docs)
-
-## Support
-
-For issues:
-
-1. Check [MCP_SETUP.md](./MCP_SETUP.md) troubleshooting section
-2. Review Supabase logs: `bunx supabase db logs`
-3. Check import logs in Supabase Studio
-4. Review API logs in terminal
-
----
-
-Built with ❤️ using Bun, FastAPI, Supabase, and Context-Fabric
+[Add your license here]

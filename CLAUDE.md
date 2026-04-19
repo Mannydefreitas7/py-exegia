@@ -15,18 +15,18 @@ This API serves as the backend for a desktop Bible study application with Text-F
 
 ### Module Documentation
 
-- **[GraphQL API](app/graphql/CLAUDE.md)** - Strawberry GraphQL schema, types, resolvers
-- **[Corpus Integration](app/corpus/CLAUDE.md)** - Context-Fabric integration and queries
-- **[Storage Service](app/storage/CLAUDE.md)** - Supabase storage for datasets
-- **[Database Models](app/models/CLAUDE.md)** - SQLAlchemy models and schema
-- **[REST Routers](app/routers/CLAUDE.md)** - FastAPI REST endpoints
-- **[Supabase](supabase/CLAUDE.md)** - Database migrations and edge functions
-
-### API Documentation
-
-- **[Corpus Query Examples](CORPUS_QUERY_EXAMPLES.md)** - 30+ query examples
-- **[Quick Start](QUICKSTART_CORPUS.md)** - Get started in 5 minutes
-- **[Implementation Summary](IMPLEMENTATION_SUMMARY.md)** - Complete feature overview
+- **GraphQL** - Strawberry GraphQL schema, types, resolvers
+  @app/GraphQL/CLAUDE.md
+- **Corpus Integration** - Context-Fabric integration and queries
+  @app/corpus/CLAUDE.md
+- **Storage Service** - Supabase storage for datasets
+  @app/storage/CLAUDE.md
+- **Database Models** - SQLAlchemy models and schema
+  @app/models/CLAUDE.md
+- **REST Routers** - FastAPI REST endpoints
+  @app/routers/CLAUDE.md
+- **Supabase** - Database migrations and edge functions
+  @supabase/CLAUDE.md
 
 ## Architecture
 
@@ -70,29 +70,6 @@ This API serves as the backend for a desktop Bible study application with Text-F
 3. **User queries corpus** → GraphQL → Context-Fabric → Local .tf files
 4. **User saves note** → GraphQL mutation → Supabase Database
 
-## Development Stack
-
-### Python (Backend)
-
-Python 3.12+ for the FastAPI backend:
-
-- **FastAPI** - Web framework
-- **Strawberry GraphQL** - GraphQL schema and resolvers
-- **Context-Fabric** - Text-Fabric corpus analysis
-- **Supabase Python Client** - Database and storage operations
-- **SQLAlchemy** - ORM for database models
-
-### Bun (Tooling & Scripts)
-
-Default to using Bun for Node.js scripts and tooling:
-
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun install` instead of `npm install`
-- Use `bun run <script>` instead of `npm run <script>`
-- Use `bunx <package>` instead of `npx <package>`
-- Bun automatically loads .env, so don't use dotenv
-
 ## Project Structure
 
 ```
@@ -126,68 +103,9 @@ api/
 ├── docs/                     # Additional documentation
 │   ├── FRIENDLY_QUERIES.md   # Query implementation details
 │   └── QUERY_FLOW.md         # Architecture diagrams
-├── _archives/                # Old/deprecated code
 ├── Dockerfile                # Docker build
 ├── docker-compose.yml        # Docker services
 └── requirements.txt          # Python dependencies
-```
-
-## Quick Start
-
-### Local Development
-
-```bash
-# Install Python dependencies
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# Install Bun dependencies
-bun install
-
-# Start Supabase (local)
-bun run db:start
-
-# Run migrations
-bun run db:migrate
-
-# Start development server
-bun run dev
-```
-
-Server runs on: **http://localhost:8000**
-
-GraphiQL playground: **http://localhost:8000/graphql**
-
-### Docker Deployment
-
-```bash
-# Build image
-docker build -t biblepedia-api .
-
-# Run with docker-compose
-docker-compose up -d
-```
-
-### Environment Variables
-
-Required in `.env`:
-
-```env
-# Supabase
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_ANON_KEY=xxx
-SUPABASE_SERVICE_ROLE_KEY=xxx
-
-# Database
-DATABASE_URL=postgresql://...
-
-# App
-ENVIRONMENT=production
-CORS_ORIGINS=http://localhost:3000
-
-# Dataset Storage
-DATASETS_BASE_PATH=/app/datasets
 ```
 
 ## API Endpoints
@@ -197,21 +115,11 @@ DATASETS_BASE_PATH=/app/datasets
 - **POST /graphql** - Strawberry GraphQL endpoint
 - **GET /graphql** - GraphiQL interactive playground
 
-See **[app/graphql/CLAUDE.md](app/graphql/CLAUDE.md)** for detailed API documentation.
-
-### REST (Legacy)
-
-- **GET /api/datasets** - List available datasets
-- **GET /api/datasets/:id/download** - Download dataset
-- **GET /api/notes** - Get user notes
-- **GET /api/favorites** - Get user favorites
-- **GET /health** - Health check
-
-See **[app/routers/CLAUDE.md](app/routers/CLAUDE.md)** for REST API details.
+See @app/graphql/CLAUDE.md for detailed API documentation.
 
 ## Key Principles
 
-1. **GraphQL First**: Primary API is GraphQL, REST for legacy support
+1. **GraphQL**: Primary API is GraphQL
 2. **User Data in Supabase**: All user-specific data stored in PostgreSQL
 3. **Datasets in Storage**: Binary datasets (ZIP files) in Supabase Storage buckets
 4. **Local Corpus Access**: Context-Fabric operates on locally extracted datasets
@@ -227,36 +135,7 @@ See **[app/routers/CLAUDE.md](app/routers/CLAUDE.md)** for REST API details.
 4. **Query corpus** → GraphQL → Context-Fabric → Local .tf files → Results
 5. **Save annotations** → GraphQL mutation → Supabase Database
 
-## Testing
-
-```bash
-# Python tests
-pytest
-
-# Bun tests (if applicable)
-bun test
-
-# Test GraphQL queries
-# Open http://localhost:8000/graphql and try example queries
-```
-
 ## Documentation Index
-
-### Module-Specific
-
-- **[GraphQL API](app/graphql/CLAUDE.md)** - Schema, types, resolvers, user-friendly queries
-- **[Corpus Integration](app/corpus/CLAUDE.md)** - Context-Fabric API, corpus management
-- **[Storage Service](app/storage/CLAUDE.md)** - Dataset downloads, Supabase Storage
-- **[Database Models](app/models/CLAUDE.md)** - Schema, migrations, models
-- **[REST Routers](app/routers/CLAUDE.md)** - REST endpoints, authentication
-- **[Supabase](supabase/CLAUDE.md)** - Migrations, functions, configuration
-
-### Query Documentation
-
-- **[CORPUS_QUERY_EXAMPLES.md](CORPUS_QUERY_EXAMPLES.md)** - 30+ query examples
-- **[QUICKSTART_CORPUS.md](QUICKSTART_CORPUS.md)** - Get started in 5 minutes
-- **[docs/FRIENDLY_QUERIES.md](docs/FRIENDLY_QUERIES.md)** - Implementation details
-- **[docs/QUERY_FLOW.md](docs/QUERY_FLOW.md)** - Architecture visualization
 
 ### External Resources
 
@@ -266,22 +145,3 @@ bun test
 - **Supabase**: https://supabase.com/docs
 - **FastAPI**: https://fastapi.tiangolo.com
 - **Text-Fabric**: https://github.com/annotation/text-fabric
-
-## Contributing
-
-When adding new features:
-
-1. Update relevant module `CLAUDE.md` file
-2. Add GraphQL types/resolvers for new queries
-3. Update `CORPUS_QUERY_EXAMPLES.md` if adding query features
-4. Add tests for new functionality
-5. Update this main `CLAUDE.md` if architecture changes
-
-## Support
-
-Questions? Check:
-
-1. Module-specific CLAUDE.md files (linked above)
-2. Query examples (CORPUS_QUERY_EXAMPLES.md)
-3. Context-Fabric documentation
-4. GitHub issues
