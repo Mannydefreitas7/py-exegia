@@ -39,8 +39,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/app/app
-      - ./alembic:/app/alembic
+      - ./src:/app/src
+      - ./packages:/app/packages
       - datasets_volume:/app/datasets
     depends_on:
       postgres:

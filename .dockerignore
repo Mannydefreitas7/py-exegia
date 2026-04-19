@@ -20,3 +20,5 @@ datasets/
 docs/
 *.md
 !README.md
+deno.lock
+.deno/

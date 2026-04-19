@@ -1,3 +1,5 @@
+FROM denoland/deno:latest AS deno
+
 FROM python:3.13-slim
 
 # Copy uv binary from official image
@@ -6,11 +8,16 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 # Copy dotenvx binary from official image
 COPY --from=dotenv/dotenvx:latest /usr/local/bin/dotenvx /usr/local/bin/dotenvx
 
+# Copy Deno binary from official image
+COPY --from=deno /usr/local/bin/deno /usr/local/bin/deno
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    UV_PYTHON_DOWNLOADS=0
+    UV_PYTHON_DOWNLOADS=0 \
+    DENO_DIR=/deno-dir/ \
+    DENO_NO_UPDATE_CHECK=1
 
 WORKDIR /app
 
@@ -30,7 +37,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project --no-dev
 
 # Copy project files and application code
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock deno.json ./
 COPY app/ ./app/
 COPY alembic/ ./alembic/
 COPY alembic.ini .

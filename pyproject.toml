@@ -4,6 +4,13 @@ version = "1.0.0"
 description = "Exegia API — Bible study backend with Context-Fabric corpus support"
 requires-python = ">=3.13"
 dependencies = [
+    # Workspace members
+    "exegia-graphql",
+    "exegia-corpus",
+    "exegia-models",
+    "exegia-routers",
+    "exegia-schemas",
+    "exegia-storage",
     # Web framework
     "fastapi[standard]>=0.115.0",
     "uvicorn[standard]>=0.30.0",
@@ -33,6 +40,7 @@ dependencies = [
     "ebooklib>=0.18",
     "beautifulsoup4>=4.12.0",
     "lxml>=5.0.0",
+    "uv-mcp>=0.3.0",
 ]
 
 [project.optional-dependencies]
@@ -49,12 +57,25 @@ dev = [
     "ruff>=0.4.0",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.uv.sources]
+exegia-graphql = { workspace = true }
+exegia-corpus  = { workspace = true }
+exegia-models  = { workspace = true }
+exegia-routers = { workspace = true }
+exegia-schemas = { workspace = true }
+exegia-storage = { workspace = true }
 
-[tool.hatch.build.targets.wheel]
-packages = ["app"]
+[tool.uv.workspace]
+members = ["packages/*"]
+exclude = ["packages/seeds"]
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
+module-name = "src"
 
 [tool.ruff]
 line-length = 100

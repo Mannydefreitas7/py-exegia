@@ -19,7 +19,7 @@ This API serves as the backend for a desktop Bible study application with Text-F
 uv sync
 
 # Run dev server
-uv run uvicorn app.main:app --reload
+uv run uvicorn src.main:app --reload
 
 # Run with Docker
 docker compose up -d
@@ -30,17 +30,19 @@ docker compose up -d
 ### Module Documentation
 
 - **GraphQL** - Strawberry GraphQL schema, types, resolvers
-  @app/GraphQL/CLAUDE.md
+  @packages/graphql/CLAUDE.md
 - **Corpus Integration** - Context-Fabric integration and queries
-  @app/corpus/CLAUDE.md
+  @packages/corpus/CLAUDE.md
 - **Storage Service** - Supabase storage for datasets
-  @app/storage/CLAUDE.md
+  @packages/storage/CLAUDE.md
 - **Database Models** - SQLAlchemy models and schema
-  @app/models/CLAUDE.md
+  @packages/models/CLAUDE.md
 - **REST Routers** - FastAPI REST endpoints
-  @app/routers/CLAUDE.md
+  @packages/routers/CLAUDE.md
 - **Supabase** - Database migrations and edge functions
-  @supabase/CLAUDE.md
+  @src/supabase/CLAUDE.md
+- **Auth** - Supabase JWT authentication and FastAPI dependencies
+  @src/supabase/auth/CLAUDE.md
 
 ## Architecture
 
@@ -62,11 +64,6 @@ docker compose up -d
 │  │  • User data (notes, favorites)                     │    │
 │  │  • Dataset management                               │    │
 │  └─────────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │         REST Endpoints (Legacy/Compat)              │    │
-│  │  • Dataset downloads                                │    │
-│  │  • Health checks                                    │    │
-│  └─────────────────────────────────────────────────────┘    │
 └───────────────────┬─────────────────┬───────────────────────┘
                     │                 │
         ┌───────────▼─────┐    ┌─────▼──────────┐
@@ -87,40 +84,50 @@ docker compose up -d
 ## Project Structure
 
 ```
-api/
-├── app/
-│   ├── graphql/              # → See app/graphql/CLAUDE.md
-│   │   ├── schema.py         # Main Strawberry schema
-│   │   ├── types/            # GraphQL types
-│   │   └── resolvers/        # Query/Mutation resolvers
-│   ├── corpus/               # → See app/corpus/CLAUDE.md
-│   │   ├── manager.py        # Corpus loading and caching
-│   │   └── query.py          # Query utilities
-│   ├── storage/              # → See app/storage/CLAUDE.md
-│   │   ├── datasets.py       # Dataset download/upload
-│   │   └── git_fetch.py      # Git repo fetching
-│   ├── models/               # → See app/models/CLAUDE.md
-│   │   ├── user.py           # User model
-│   │   ├── note.py           # Notes model
-│   │   └── favorite.py       # Favorites model
-│   ├── routers/              # → See app/routers/CLAUDE.md
-│   │   ├── datasets.py       # Dataset management
-│   │   └── user_data.py      # User notes/favorites
-│   ├── auth.py               # Supabase auth integration
-│   ├── config.py             # Configuration
-│   ├── database.py           # Database connections
-│   └── main.py               # FastAPI app entry point
-├── supabase/                 # → See supabase/CLAUDE.md
-│   ├── migrations/           # Database migrations
-│   ├── functions/            # Edge functions
-│   └── config.toml           # Supabase config
-├── docs/                     # Additional documentation
-│   ├── FRIENDLY_QUERIES.md   # Query implementation details
-│   └── QUERY_FLOW.md         # Architecture diagrams
-├── Dockerfile                # Docker build (uv-based)
-├── docker-compose.yml        # Docker services
-├── pyproject.toml            # Project deps and config
-└── uv.lock                   # Locked dependency versions
+api/                              # uv workspace root
+├── packages/                     # Workspace members (editable installs)
+│   ├── graphql/                  # → See packages/graphql/CLAUDE.md
+│   │   ├── pyproject.toml        # name: exegia-graphql
+│   │   └── exegia_graphql/       # module: exegia_graphql
+│   │       ├── schema.py         # Strawberry schema + GraphQLRouter
+│   │       ├── types/            # Corpus, dataset, user GQL types
+│   │       └── resolvers/        # Query/mutation implementations
+│   ├── corpus/                   # → See packages/corpus/CLAUDE.md
+│   │   ├── pyproject.toml        # name: exegia-corpus
+│   │   └── corpus/               # module: corpus
+│   │       └── manager.py        # Corpus loading and caching
+│   ├── models/                   # → See packages/models/CLAUDE.md
+│   │   ├── pyproject.toml        # name: exegia-models
+│   │   └── models/               # module: models
+│   │       ├── book.py, note.py, user.py …
+│   ├── schemas/                  # → See packages/schemas/CLAUDE.md
+│   │   ├── pyproject.toml        # name: exegia-schemas
+│   │   └── schemas/              # module: schemas
+│   │       ├── dataset.py, library.py …
+│   ├── storage/                  # → See packages/storage/CLAUDE.md
+│   │   ├── pyproject.toml        # name: exegia-storage
+│   │   └── storage/              # module: storage
+│   │       └── datasets.py       # Supabase dataset operations
+│   └── routers/                  # → See packages/routers/CLAUDE.md
+│       ├── pyproject.toml        # name: exegia-routers
+│       └── routers/              # module: routers
+├── src/                          # Root app module (module: src)
+│   ├── supabase/                 # → See src/supabase/CLAUDE.md
+│   │   ├── auth/                 # → See src/supabase/auth/CLAUDE.md
+│   │   │   ├── __init__.py       # JWT verification + FastAPI deps
+│   │   │   └── __init__.pyi      # Type stubs
+│   │   ├── migrations/           # Database migrations
+│   │   └── config.toml           # Supabase config
+│   ├── services/                 # Internal services (epub, git, etc.)
+│   ├── utils/                    # Utilities (ssl_cert, storage_client)
+│   ├── auth.py                   # Re-export shim → src.supabase.auth
+│   ├── config.py                 # App settings (pydantic-settings)
+│   ├── database.py               # SQLAlchemy async engine + Base
+│   └── main.py                   # FastAPI app entry point
+├── Dockerfile                    # Docker build (uv-based)
+├── docker-compose.yml            # Docker services
+├── pyproject.toml                # Workspace root + exegia-api deps
+└── uv.lock                       # Shared workspace lockfile
 ```
 
 ## API Endpoints
@@ -130,7 +137,7 @@ api/
 - **POST /graphql** - Strawberry GraphQL endpoint
 - **GET /graphql** - GraphiQL interactive playground
 
-See @app/graphql/CLAUDE.md for detailed API documentation.
+See [graphql/CLAUDE.md](#module-documentation) for detailed API documentation.
 
 ## Key Principles
 
