@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
-from src.graphql.schema import graphql_router
-from src.ssl_cert import CERT_FILE, KEY_FILE, generate_ssl_cert
+from exegia_graphql.schema import graphql_router
+from src.utils.ssl_cert import CERT_FILE, KEY_FILE, generate_ssl_cert
 
 logging.basicConfig(
     level=logging.DEBUG if settings.is_development else logging.INFO,
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "app.main:app",
+        "src.main:app",
         port=8000,
         reload=True,
         use_colors=True,
