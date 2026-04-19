@@ -5,13 +5,14 @@ Defines Strawberry GraphQL types for dataset management.
 """
 
 from datetime import datetime
+from enum import Enum
 from typing import List, Optional
 
 import strawberry
 
 
 @strawberry.enum
-class DatasetCategory(str):
+class DatasetCategory(str, Enum):
     """Dataset category enumeration."""
 
     BIBLES = "bibles"
