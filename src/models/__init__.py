@@ -1,7 +1,7 @@
-from app.models.book import BookCategory, BookPage, BookSection, BookSourceType, LibraryBook, SectionType
-from app.models.commentary import Commentary, CommentaryBook, CommentaryChapter, CommentaryProfile
-from app.models.dataset import Dataset, DatasetBook, DatasetChapter
-from app.models.translation import Base, Book, Chapter, Translation
+from src.models.book import BookCategory, BookPage, BookSection, BookSourceType, LibraryBook, SectionType
+from src.models.commentary import Commentary, CommentaryBook, CommentaryChapter, CommentaryProfile
+from src.models.dataset import Dataset, DatasetBook, DatasetChapter
+from src.models.translation import Base, Book, Chapter, Translation
 
 __all__ = [
 	"Base",

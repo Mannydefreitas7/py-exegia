@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 
 import strawberry
 
-from app.graphql.types.user import (
+from src.graphql.types.user import (
     Comment,
     CommentsList,
     CommentsFilterInput,
@@ -38,7 +38,7 @@ def _now() -> datetime:
 
 def _get_supabase(info: strawberry.Info):
     """Return a Supabase client with the request's bearer token, or None."""
-    from app.config import settings
+    from src.config import settings
     if not settings.supabase_url or not settings.supabase_anon_key:
         return None
 

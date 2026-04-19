@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 import strawberry
 
-from app.corpus.manager import CorpusManager
+from src.corpus.manager import CorpusManager
 
 
 @strawberry.enum

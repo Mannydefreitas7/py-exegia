@@ -1,7 +1,7 @@
 from sqlalchemy import Column, DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 
-from app.database import Base
+from src.database import Base
 
 
 class Favorite(Base):

@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from app.models.book import BookCategory
+from src.models.book import BookCategory
 
 
 class LibraryBookOut(BaseModel):

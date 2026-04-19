@@ -4,7 +4,7 @@ from typing import Any
 
 from supabase import Client, create_client
 
-from app.config import settings
+from src.config import settings
 
 logger = logging.getLogger(__name__)
 

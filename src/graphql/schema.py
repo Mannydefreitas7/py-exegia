@@ -10,7 +10,7 @@ from uuid import UUID
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 
-from app.graphql.types.corpus import (
+from src.graphql.types.corpus import (
     BookInfo,
     ChapterInfo,
     ComparePassagesInput,
@@ -33,7 +33,7 @@ from app.graphql.types.corpus import (
     WordStudy,
     WordStudyInput,
 )
-from app.graphql.types.dataset import (
+from src.graphql.types.dataset import (
     Dataset,
     DatasetCategory,
     DatasetDownloadResult,
@@ -47,7 +47,7 @@ from app.graphql.types.dataset import (
     SyncDatasetInput,
     UploadDatasetInput,
 )
-from app.graphql.types.user import (
+from src.graphql.types.user import (
     Comment,
     CommentsFilterInput,
     CommentsList,
@@ -96,7 +96,7 @@ class Query:
         Returns:
             List of available datasets
         """
-        from app.graphql.resolvers.datasets import resolve_datasets
+        from src.graphql.resolvers.datasets import resolve_datasets
 
         return await resolve_datasets(category, search)
 
@@ -114,7 +114,7 @@ class Query:
         Returns:
             Dataset information or None if not found
         """
-        from app.graphql.resolvers.datasets import resolve_dataset
+        from src.graphql.resolvers.datasets import resolve_dataset
 
         return await resolve_dataset(dataset_id, category)
 
@@ -131,7 +131,7 @@ class Query:
         Returns:
             List of local datasets
         """
-        from app.graphql.resolvers.datasets import resolve_local_datasets
+        from src.graphql.resolvers.datasets import resolve_local_datasets
 
         return await resolve_local_datasets(category)
 
@@ -149,7 +149,7 @@ class Query:
         Returns:
             Local dataset information or None if not found
         """
-        from app.graphql.resolvers.datasets import resolve_local_dataset
+        from src.graphql.resolvers.datasets import resolve_local_dataset
 
         return await resolve_local_dataset(dataset_id, category)
 
@@ -165,7 +165,7 @@ class Query:
         Returns:
             User profile or None if not authenticated
         """
-        from app.graphql.resolvers.users import resolve_my_profile
+        from src.graphql.resolvers.users import resolve_my_profile
 
         return await resolve_my_profile(info)
 
@@ -188,7 +188,7 @@ class Query:
         Returns:
             List of user's notes
         """
-        from app.graphql.resolvers.users import resolve_my_notes
+        from src.graphql.resolvers.users import resolve_my_notes
 
         return await resolve_my_notes(info, filters, limit, offset)
 
@@ -211,7 +211,7 @@ class Query:
         Returns:
             List of user's favorites
         """
-        from app.graphql.resolvers.users import resolve_my_favorites
+        from src.graphql.resolvers.users import resolve_my_favorites
 
         return await resolve_my_favorites(info, filters, limit, offset)
 
@@ -234,7 +234,7 @@ class Query:
         Returns:
             List of user's comments
         """
-        from app.graphql.resolvers.users import resolve_my_comments
+        from src.graphql.resolvers.users import resolve_my_comments
 
         return await resolve_my_comments(info, filters, limit, offset)
 
@@ -246,7 +246,7 @@ class Query:
         Returns:
             List of user's downloaded datasets
         """
-        from app.graphql.resolvers.users import resolve_my_datasets
+        from src.graphql.resolvers.users import resolve_my_datasets
 
         return await resolve_my_datasets(info)
 
@@ -265,7 +265,7 @@ class Query:
         Returns:
             Corpus metadata or None if not loaded
         """
-        from app.graphql.resolvers.corpus import resolve_corpus_metadata
+        from src.graphql.resolvers.corpus import resolve_corpus_metadata
 
         return await resolve_corpus_metadata(dataset_id)
 
@@ -280,7 +280,7 @@ class Query:
         Returns:
             Corpus statistics or None if not loaded
         """
-        from app.graphql.resolvers.corpus import resolve_corpus_stats
+        from src.graphql.resolvers.corpus import resolve_corpus_stats
 
         return await resolve_corpus_stats(dataset_id)
 
@@ -295,7 +295,7 @@ class Query:
         Returns:
             Search results with matching verses
         """
-        from app.graphql.resolvers.corpus import resolve_search_corpus
+        from src.graphql.resolvers.corpus import resolve_search_corpus
 
         return await resolve_search_corpus(input)
 
@@ -310,7 +310,7 @@ class Query:
         Returns:
             Passage or None if not found
         """
-        from app.graphql.resolvers.corpus import resolve_get_passage
+        from src.graphql.resolvers.corpus import resolve_get_passage
 
         return await resolve_get_passage(input)
 
@@ -325,7 +325,7 @@ class Query:
         Returns:
             List of passages
         """
-        from app.graphql.resolvers.corpus import resolve_get_passages
+        from src.graphql.resolvers.corpus import resolve_get_passages
 
         return await resolve_get_passages(input)
 
@@ -341,7 +341,7 @@ class Query:
         Returns:
             Verse or None if not found
         """
-        from app.graphql.resolvers.corpus import resolve_get_verse
+        from src.graphql.resolvers.corpus import resolve_get_verse
 
         return await resolve_get_verse(dataset_id, reference)
 
@@ -356,7 +356,7 @@ class Query:
         Returns:
             List of verses in the range
         """
-        from app.graphql.resolvers.corpus import resolve_get_verse_range
+        from src.graphql.resolvers.corpus import resolve_get_verse_range
 
         return await resolve_get_verse_range(input)
 
@@ -371,7 +371,7 @@ class Query:
         Returns:
             Word study results
         """
-        from app.graphql.resolvers.corpus import resolve_word_study
+        from src.graphql.resolvers.corpus import resolve_word_study
 
         return await resolve_word_study(input)
 
@@ -386,7 +386,7 @@ class Query:
         Returns:
             Parallel passage data
         """
-        from app.graphql.resolvers.corpus import resolve_compare_passages
+        from src.graphql.resolvers.corpus import resolve_compare_passages
 
         return await resolve_compare_passages(input)
 
@@ -401,7 +401,7 @@ class Query:
         Returns:
             List of books
         """
-        from app.graphql.resolvers.corpus import resolve_get_books
+        from src.graphql.resolvers.corpus import resolve_get_books
 
         return await resolve_get_books(input)
 
@@ -418,7 +418,7 @@ class Query:
         Returns:
             Chapter information
         """
-        from app.graphql.resolvers.corpus import resolve_get_chapter_info
+        from src.graphql.resolvers.corpus import resolve_get_chapter_info
 
         return await resolve_get_chapter_info(input)
 
@@ -444,7 +444,7 @@ class Mutation:
         Returns:
             Download result with success status and local path
         """
-        from app.graphql.resolvers.datasets import resolve_download_dataset
+        from src.graphql.resolvers.datasets import resolve_download_dataset
 
         return await resolve_download_dataset(info, input)
 
@@ -461,7 +461,7 @@ class Mutation:
         Returns:
             Upload result with success status
         """
-        from app.graphql.resolvers.datasets import resolve_upload_dataset
+        from src.graphql.resolvers.datasets import resolve_upload_dataset
 
         return await resolve_upload_dataset(info, input)
 
@@ -478,7 +478,7 @@ class Mutation:
         Returns:
             True if deleted successfully
         """
-        from app.graphql.resolvers.datasets import resolve_delete_dataset
+        from src.graphql.resolvers.datasets import resolve_delete_dataset
 
         return await resolve_delete_dataset(info, input)
 
@@ -495,7 +495,7 @@ class Mutation:
         Returns:
             True if synced successfully
         """
-        from app.graphql.resolvers.datasets import resolve_sync_dataset
+        from src.graphql.resolvers.datasets import resolve_sync_dataset
 
         return await resolve_sync_dataset(info, input)
 
@@ -516,7 +516,7 @@ class Mutation:
         Returns:
             Updated user profile
         """
-        from app.graphql.resolvers.users import resolve_update_profile
+        from src.graphql.resolvers.users import resolve_update_profile
 
         return await resolve_update_profile(info, input)
 
@@ -531,21 +531,21 @@ class Mutation:
         Returns:
             Created note
         """
-        from app.graphql.resolvers.users import resolve_create_note
+        from src.graphql.resolvers.users import resolve_create_note
 
         return await resolve_create_note(info, input)
 
     @strawberry.mutation
     async def update_note(self, info: strawberry.Info, input: UpdateNoteInput) -> Note:
         """Update an existing note."""
-        from app.graphql.resolvers.users import resolve_update_note
+        from src.graphql.resolvers.users import resolve_update_note
 
         return await resolve_update_note(info, input)
 
     @strawberry.mutation
     async def delete_note(self, info: strawberry.Info, input: DeleteNoteInput) -> bool:
         """Delete a note."""
-        from app.graphql.resolvers.users import resolve_delete_note
+        from src.graphql.resolvers.users import resolve_delete_note
 
         return await resolve_delete_note(info, input)
 
@@ -554,7 +554,7 @@ class Mutation:
         self, info: strawberry.Info, input: CreateFavoriteInput
     ) -> Favorite:
         """Add a passage to favorites."""
-        from app.graphql.resolvers.users import resolve_create_favorite
+        from src.graphql.resolvers.users import resolve_create_favorite
 
         return await resolve_create_favorite(info, input)
 
@@ -563,7 +563,7 @@ class Mutation:
         self, info: strawberry.Info, input: DeleteFavoriteInput
     ) -> bool:
         """Remove a passage from favorites."""
-        from app.graphql.resolvers.users import resolve_delete_favorite
+        from src.graphql.resolvers.users import resolve_delete_favorite
 
         return await resolve_delete_favorite(info, input)
 
@@ -572,7 +572,7 @@ class Mutation:
         self, info: strawberry.Info, input: CreateCommentInput
     ) -> Comment:
         """Create a new comment."""
-        from app.graphql.resolvers.users import resolve_create_comment
+        from src.graphql.resolvers.users import resolve_create_comment
 
         return await resolve_create_comment(info, input)
 
@@ -581,7 +581,7 @@ class Mutation:
         self, info: strawberry.Info, input: UpdateCommentInput
     ) -> Comment:
         """Update an existing comment."""
-        from app.graphql.resolvers.users import resolve_update_comment
+        from src.graphql.resolvers.users import resolve_update_comment
 
         return await resolve_update_comment(info, input)
 
@@ -590,7 +590,7 @@ class Mutation:
         self, info: strawberry.Info, input: DeleteCommentInput
     ) -> bool:
         """Delete a comment."""
-        from app.graphql.resolvers.users import resolve_delete_comment
+        from src.graphql.resolvers.users import resolve_delete_comment
 
         return await resolve_delete_comment(info, input)
 

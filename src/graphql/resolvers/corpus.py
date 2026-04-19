@@ -2,8 +2,8 @@ import logging
 from pathlib import Path
 from typing import List, Optional
 
-from app.config import settings
-from app.graphql.types.corpus import (
+from src.config import settings
+from src.graphql.types.corpus import (
     BookInfo,
     ChapterInfo,
     ComparePassagesInput,
@@ -17,8 +17,8 @@ from app.graphql.types.corpus import (
     ParallelPassage,
     Passage,
     SearchCorpusInput,
-    SearchResults,
     SearchResult,
+    SearchResults,
     Verse,
     WordOccurrence,
     WordStudy,
@@ -29,7 +29,8 @@ logger = logging.getLogger(__name__)
 
 
 def _get_corpus_manager():
-    from app.corpus.manager import get_corpus_manager
+    from src.corpus.manager import get_corpus_manager
+
     return get_corpus_manager(Path(settings.datasets_base_path))
 
 
@@ -65,10 +66,22 @@ async def resolve_corpus_stats(dataset_id: str) -> Optional[CorpusStats]:
     if api is None:
         return None
     try:
-        total_words = len(list(api.F.otype.s("word"))) if hasattr(api, "F") and hasattr(api.F, "otype") else 0
-        total_verses = len(list(api.F.otype.s("verse"))) if hasattr(api, "F") and hasattr(api.F, "otype") else 0
-        total_chapters = len(list(api.F.otype.s("chapter"))) if hasattr(api, "F") and hasattr(api.F, "otype") else 0
-        total_books = len(list(api.F.otype.s("book"))) if hasattr(api, "F") and hasattr(api.F, "otype") else 0
+        total_words = (
+            len(list(api.F.otype.s("word"))) if hasattr(api, "F") and hasattr(api.F, "otype") else 0
+        )
+        total_verses = (
+            len(list(api.F.otype.s("verse")))
+            if hasattr(api, "F") and hasattr(api.F, "otype")
+            else 0
+        )
+        total_chapters = (
+            len(list(api.F.otype.s("chapter")))
+            if hasattr(api, "F") and hasattr(api.F, "otype")
+            else 0
+        )
+        total_books = (
+            len(list(api.F.otype.s("book"))) if hasattr(api, "F") and hasattr(api.F, "otype") else 0
+        )
         return CorpusStats(
             dataset_id=dataset_id,
             total_books=total_books,
@@ -109,26 +122,30 @@ def _verse_from_node(node: int, api, dataset_id: str) -> Optional[Verse]:
 async def resolve_search_corpus(input: SearchCorpusInput) -> SearchResults:
     api = _load_corpus(input.dataset_id)
     if api is None:
-        return SearchResults(results=[], total=0, query=input.query, dataset_id=input.dataset_id, has_more=False)
+        return SearchResults(
+            results=[], total=0, query=input.query, dataset_id=input.dataset_id, has_more=False
+        )
 
     try:
         raw = list(api.S.search(input.query))
         total = len(raw)
-        page = raw[input.offset: input.offset + input.limit]
+        page = raw[input.offset : input.offset + input.limit]
 
         results = []
         for match in page:
             node = match[0] if isinstance(match, (tuple, list)) else match
             verse = _verse_from_node(node, api, input.dataset_id)
             if verse:
-                results.append(SearchResult(
-                    reference=verse.reference,
-                    text=verse.text,
-                    book=verse.book,
-                    chapter=verse.chapter,
-                    verse=verse.verse,
-                    dataset_id=input.dataset_id,
-                ))
+                results.append(
+                    SearchResult(
+                        reference=verse.reference,
+                        text=verse.text,
+                        book=verse.book,
+                        chapter=verse.chapter,
+                        verse=verse.verse,
+                        dataset_id=input.dataset_id,
+                    )
+                )
 
         return SearchResults(
             results=results,
@@ -139,7 +156,9 @@ async def resolve_search_corpus(input: SearchCorpusInput) -> SearchResults:
         )
     except Exception as e:
         logger.error("resolve_search_corpus error: %s", e)
-        return SearchResults(results=[], total=0, query=input.query, dataset_id=input.dataset_id, has_more=False)
+        return SearchResults(
+            results=[], total=0, query=input.query, dataset_id=input.dataset_id, has_more=False
+        )
 
 
 async def resolve_get_passage(input: GetPassageInput) -> Optional[Passage]:
@@ -226,14 +245,16 @@ async def resolve_get_verse_range(input: GetVerseRangeInput) -> List[Verse]:
                         break
                     n = node if isinstance(node, int) else node[0]
                     text = api.T.text(n)
-                    results.append(Verse(
-                        reference=f"{input.book} {chapter}:{verse_num}",
-                        book=input.book,
-                        chapter=chapter,
-                        verse=verse_num,
-                        text=text,
-                        dataset_id=input.dataset_id,
-                    ))
+                    results.append(
+                        Verse(
+                            reference=f"{input.book} {chapter}:{verse_num}",
+                            book=input.book,
+                            chapter=chapter,
+                            verse=verse_num,
+                            text=text,
+                            dataset_id=input.dataset_id,
+                        )
+                    )
                     verse_num += 1
                 except Exception:
                     break
@@ -248,8 +269,8 @@ async def resolve_word_study(input: WordStudyInput) -> Optional[WordStudy]:
     if api is None:
         return None
     try:
-        query = f'word g_word_utf8~{input.word}'
-        raw = list(api.S.search(query))[:input.limit]
+        query = f"word g_word_utf8~{input.word}"
+        raw = list(api.S.search(query))[: input.limit]
 
         occurrences = []
         for match in raw:
@@ -258,17 +279,23 @@ async def resolve_word_study(input: WordStudyInput) -> Optional[WordStudy]:
                 section = api.T.sectionFromNode(node)
                 book, chapter, verse_num = section[0], section[1], section[2]
                 verse_nodes = api.T.nodeFromSection((book, chapter, verse_num))
-                v_node = verse_nodes if isinstance(verse_nodes, int) else (verse_nodes[0] if verse_nodes else None)
+                v_node = (
+                    verse_nodes
+                    if isinstance(verse_nodes, int)
+                    else (verse_nodes[0] if verse_nodes else None)
+                )
                 verse_text = api.T.text(v_node) if v_node else ""
-                occurrences.append(WordOccurrence(
-                    word=api.T.text(node),
-                    reference=f"{book} {chapter}:{verse_num}",
-                    text=verse_text,
-                    book=str(book),
-                    chapter=int(chapter),
-                    verse=int(verse_num),
-                    position=node,
-                ))
+                occurrences.append(
+                    WordOccurrence(
+                        word=api.T.text(node),
+                        reference=f"{book} {chapter}:{verse_num}",
+                        text=verse_text,
+                        book=str(book),
+                        chapter=int(chapter),
+                        verse=int(verse_num),
+                        position=node,
+                    )
+                )
             except Exception:
                 continue
 
@@ -311,13 +338,15 @@ async def resolve_get_books(input: GetBooksInput) -> List[BookInfo]:
                 testament = None
                 if input.testament:
                     testament = input.testament
-                books.append(BookInfo(
-                    name=str(name),
-                    code=str(name),
-                    testament=testament,
-                    chapter_count=len(chapter_nodes),
-                    verse_count=len(verse_nodes),
-                ))
+                books.append(
+                    BookInfo(
+                        name=str(name),
+                        code=str(name),
+                        testament=testament,
+                        chapter_count=len(chapter_nodes),
+                        verse_count=len(verse_nodes),
+                    )
+                )
             except Exception:
                 continue
         return books

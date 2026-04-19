@@ -4,8 +4,8 @@ from typing import Optional
 
 import strawberry
 
-from app.config import settings
-from app.graphql.types.dataset import (
+from src.config import settings
+from src.graphql.types.dataset import (
     Dataset,
     DatasetCategory,
     DatasetDownloadResult,
@@ -41,7 +41,7 @@ def _storage_service():
     client = _supabase_client()
     if client is None:
         return None
-    from app.storage.datasets import DatasetStorageService
+    from src.storage.datasets import DatasetStorageService
     return DatasetStorageService(client, Path(settings.datasets_base_path))
 
 

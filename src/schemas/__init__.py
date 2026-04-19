@@ -1,4 +1,4 @@
-from app.schemas.translation import (
+from src.schemas.translation import (
 	Translation,
 	TranslationBook,
 	TranslationBookChapter,
@@ -11,7 +11,7 @@ from app.schemas.translation import (
 	ChapterLineBreak,
 	ChapterData,
 )
-from app.schemas.commentary import (
+from src.schemas.commentary import (
 	Commentary,
 	CommentaryBook,
 	CommentaryBooks,
@@ -21,7 +21,7 @@ from app.schemas.commentary import (
 	CommentaryProfileContent,
 	AvailableCommentaries,
 )
-from app.schemas.dataset import (
+from src.schemas.dataset import (
 	Dataset,
 	DatasetBook,
 	DatasetBooks,

@@ -3,9 +3,9 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.graphql.schema import graphql_router
-from app.ssl_cert import CERT_FILE, KEY_FILE, generate_ssl_cert
+from src.config import settings
+from src.graphql.schema import graphql_router
+from src.ssl_cert import CERT_FILE, KEY_FILE, generate_ssl_cert
 
 logging.basicConfig(
     level=logging.DEBUG if settings.is_development else logging.INFO,
