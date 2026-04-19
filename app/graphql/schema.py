@@ -547,4 +547,67 @@ class Mutation:
 
     @strawberry.mutation
     async def update_note(
-        self, info: strawberry.Info, input:
+        self, info: strawberry.Info, input: UpdateNoteInput
+    ) -> Note:
+        """Update an existing note."""
+        from app.graphql.resolvers.users import resolve_update_note
+
+        return await resolve_update_note(info, input)
+
+    @strawberry.mutation
+    async def delete_note(
+        self, info: strawberry.Info, input: DeleteNoteInput
+    ) -> bool:
+        """Delete a note."""
+        from app.graphql.resolvers.users import resolve_delete_note
+
+        return await resolve_delete_note(info, input)
+
+    @strawberry.mutation
+    async def create_favorite(
+        self, info: strawberry.Info, input: CreateFavoriteInput
+    ) -> Favorite:
+        """Add a passage to favorites."""
+        from app.graphql.resolvers.users import resolve_create_favorite
+
+        return await resolve_create_favorite(info, input)
+
+    @strawberry.mutation
+    async def delete_favorite(
+        self, info: strawberry.Info, input: DeleteFavoriteInput
+    ) -> bool:
+        """Remove a passage from favorites."""
+        from app.graphql.resolvers.users import resolve_delete_favorite
+
+        return await resolve_delete_favorite(info, input)
+
+    @strawberry.mutation
+    async def create_comment(
+        self, info: strawberry.Info, input: CreateCommentInput
+    ) -> Comment:
+        """Create a new comment."""
+        from app.graphql.resolvers.users import resolve_create_comment
+
+        return await resolve_create_comment(info, input)
+
+    @strawberry.mutation
+    async def update_comment(
+        self, info: strawberry.Info, input: UpdateCommentInput
+    ) -> Comment:
+        """Update an existing comment."""
+        from app.graphql.resolvers.users import resolve_update_comment
+
+        return await resolve_update_comment(info, input)
+
+    @strawberry.mutation
+    async def delete_comment(
+        self, info: strawberry.Info, input: DeleteCommentInput
+    ) -> bool:
+        """Delete a comment."""
+        from app.graphql.resolvers.users import resolve_delete_comment
+
+        return await resolve_delete_comment(info, input)
+
+
+schema = strawberry.Schema(query=Query, mutation=Mutation)
+graphql_router = GraphQLRouter(schema, graphql_ide="graphiql")
