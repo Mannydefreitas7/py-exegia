@@ -47,16 +47,12 @@ class DatasetStorageService:
             local_base_path: Base directory for local dataset storage
         """
         self.supabase = supabase_client
-        self.local_base_path = (
-            local_base_path or Path.home() / ".biblepedia" / "datasets"
-        )
+        self.local_base_path = local_base_path or Path.home() / ".exegia" / "datasets"
 
         # Ensure local base path exists
         self.local_base_path.mkdir(parents=True, exist_ok=True)
 
-        logger.info(
-            f"Dataset storage service initialized with local path: {self.local_base_path}"
-        )
+        logger.info(f"Dataset storage service initialized with local path: {self.local_base_path}")
 
     async def list_datasets(
         self, category: Optional[str] = None, search: Optional[str] = None
@@ -161,9 +157,7 @@ class DatasetStorageService:
         target_path.mkdir(parents=True, exist_ok=True)
 
         try:
-            logger.info(
-                f"Downloading dataset '{dataset_id}' from bucket '{bucket_name}'"
-            )
+            logger.info(f"Downloading dataset '{dataset_id}' from bucket '{bucket_name}'")
 
             # Download file from Supabase Storage
             file_data = self.supabase.storage.from_(bucket_name).download(file_name)
@@ -180,9 +174,7 @@ class DatasetStorageService:
                 with zipfile.ZipFile(io.BytesIO(file_data), "r") as zip_ref:
                     zip_ref.extractall(target_path)
 
-                logger.info(
-                    f"Successfully extracted dataset '{dataset_id}' to {target_path}"
-                )
+                logger.info(f"Successfully extracted dataset '{dataset_id}' to {target_path}")
                 return target_path
             else:
                 # Save zip file without extracting
@@ -299,9 +291,7 @@ class DatasetStorageService:
             logger.error(f"Failed to delete dataset '{dataset_id}': {e}")
             return False
 
-    async def get_dataset_info(
-        self, dataset_id: str, category: str
-    ) -> Optional[Dict[str, Any]]:
+    async def get_dataset_info(self, dataset_id: str, category: str) -> Optional[Dict[str, Any]]:
         """
         Get metadata for a specific dataset.
 
