@@ -35,6 +35,7 @@ GET /api/datasets?category=bibles
 ```
 
 **Response:**
+
 ```json
 {
   "datasets": [
@@ -59,6 +60,7 @@ GET /api/datasets/:id
 ```
 
 **Response:**
+
 ```json
 {
   "id": "BHSA",
@@ -81,6 +83,7 @@ GET /api/datasets/:id/download
 **Response:** ZIP file (binary stream)
 
 **Headers:**
+
 ```
 Content-Type: application/zip
 Content-Disposition: attachment; filename="BHSA.zip"
@@ -94,19 +97,21 @@ POST /api/datasets/:id/install
 ```
 
 **Request:**
+
 ```json
 {
-  "local_path": "/Users/john/BiblePedia/datasets/BHSA",
+  "local_path": "/Users/john/Exegia/datasets/BHSA",
   "version": "2021"
 }
 ```
 
 **Response:**
+
 ```json
 {
   "id": "abc123",
   "dataset_id": "BHSA",
-  "local_path": "/Users/john/BiblePedia/datasets/BHSA",
+  "local_path": "/Users/john/Exegia/datasets/BHSA",
   "downloaded_at": "2024-01-15T10:30:00Z"
 }
 ```
@@ -118,6 +123,7 @@ DELETE /api/datasets/:id
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -138,6 +144,7 @@ GET /api/notes?dataset_id=BHSA&reference=Genesis 1:1
 ```
 
 **Response:**
+
 ```json
 {
   "notes": [
@@ -162,6 +169,7 @@ POST /api/notes
 ```
 
 **Request:**
+
 ```json
 {
   "dataset_id": "BHSA",
@@ -172,6 +180,7 @@ POST /api/notes
 ```
 
 **Response:**
+
 ```json
 {
   "id": "note-123",
@@ -190,6 +199,7 @@ PUT /api/notes/:id
 ```
 
 **Request:**
+
 ```json
 {
   "content": "Updated note content",
@@ -212,6 +222,7 @@ GET /api/favorites?dataset_id=BHSA
 ```
 
 **Response:**
+
 ```json
 {
   "favorites": [
@@ -234,6 +245,7 @@ POST /api/favorites
 ```
 
 **Request:**
+
 ```json
 {
   "dataset_id": "BHSA",
@@ -335,12 +347,12 @@ async def get_notes(
     db = Depends(get_db)
 ):
     query = db.query(Note).filter(Note.user_id == user.id)
-    
+
     if dataset_id:
         query = query.filter(Note.dataset_id == dataset_id)
     if reference:
         query = query.filter(Note.reference == reference)
-    
+
     notes = query.all()
     return {"notes": notes, "total": len(notes)}
 
@@ -360,7 +372,7 @@ async def create_note(
     db.add(note)
     db.commit()
     db.refresh(note)
-    
+
     return note
 ```
 
@@ -371,6 +383,7 @@ GET /health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -393,20 +406,6 @@ app.add_middleware(
 )
 ```
 
-## Rate Limiting
-
-```python
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-
-limiter = Limiter(key_func=get_remote_address)
-
-@router.get("/datasets")
-@limiter.limit("100/minute")
-async def list_datasets():
-    ...
-```
-
 ## Testing
 
 ```python
@@ -427,21 +426,16 @@ def test_create_note_with_auth():
     assert response.status_code == 200
 ```
 
-## Related Documentation
-
-- [GraphQL API](../graphql/CLAUDE.md) - Primary API interface
-- [Database Models](../models/CLAUDE.md) - Data models
-- [Storage Service](../storage/CLAUDE.md) - Dataset storage
-- [FastAPI Docs](https://fastapi.tiangolo.com/)
-
 ## Migration to GraphQL
 
 These REST endpoints are maintained for:
+
 - **Legacy compatibility**: Existing clients using REST
 - **File downloads**: Streaming large dataset files
 - **Simple operations**: Health checks, basic CRUD
 
 New features should prefer GraphQL for:
+
 - Type safety
 - Better documentation
 - Flexible queries

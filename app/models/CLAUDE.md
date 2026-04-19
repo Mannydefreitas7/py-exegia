@@ -55,7 +55,7 @@ CREATE TABLE notes (
     tags TEXT[],              -- Optional tags
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    
+
     -- Indexes
     INDEX idx_notes_user (user_id),
     INDEX idx_notes_dataset (dataset_id),
@@ -92,10 +92,10 @@ CREATE TABLE favorites (
     reference TEXT NOT NULL,  -- e.g., "John 3:16"
     note TEXT,                -- Optional quick note
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    
+
     -- Prevent duplicates
     UNIQUE (user_id, dataset_id, reference),
-    
+
     -- Indexes
     INDEX idx_favorites_user (user_id),
     INDEX idx_favorites_dataset (dataset_id)
@@ -123,10 +123,10 @@ CREATE TABLE user_datasets (
     version TEXT,                -- Dataset version
     downloaded_at TIMESTAMPTZ DEFAULT NOW(),
     last_accessed TIMESTAMPTZ,
-    
+
     -- Prevent duplicates
     UNIQUE (user_id, dataset_id),
-    
+
     -- Indexes
     INDEX idx_user_datasets_user (user_id),
     INDEX idx_user_datasets_type (dataset_type)
@@ -144,153 +144,17 @@ CREATE POLICY "Users can manage their own datasets"
 
 ### User Model (`user.py`)
 
-```python
-from sqlalchemy import Column, String, DateTime
-from sqlalchemy.dialects.postgresql import UUID
-from app.database import Base
-
-class User(Base):
-    __tablename__ = "profiles"
-    
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    username = Column(String, unique=True)
-    full_name = Column(String)
-    avatar_url = Column(String)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-    
-    # Relationships
-    notes = relationship("Note", back_populates="user")
-    favorites = relationship("Favorite", back_populates="user")
-    datasets = relationship("UserDataset", back_populates="user")
-```
+see @user
 
 ### Note Model (`note.py`)
 
-```python
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, ARRAY
-from sqlalchemy.dialects.postgresql import UUID
-from app.database import Base
-
-class Note(Base):
-    __tablename__ = "notes"
-    
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("auth.users.id"))
-    dataset_id = Column(String, nullable=False)
-    reference = Column(String, nullable=False)
-    content = Column(Text, nullable=False)
-    tags = Column(ARRAY(String))
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-    
-    # Relationships
-    user = relationship("User", back_populates="notes")
-```
+see @note
 
 ### Favorite Model (`favorite.py`)
 
-```python
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
-from app.database import Base
-
-class Favorite(Base):
-    __tablename__ = "favorites"
-    
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("auth.users.id"))
-    dataset_id = Column(String, nullable=False)
-    reference = Column(String, nullable=False)
-    note = Column(Text)
-    created_at = Column(DateTime)
-    
-    # Constraints
-    __table_args__ = (
-        UniqueConstraint('user_id', 'dataset_id', 'reference', name='uq_user_dataset_ref'),
-    )
-    
-    # Relationships
-    user = relationship("User", back_populates="favorites")
-```
+see @favorite
 
 ### UserDataset Model (`dataset.py`)
-
-```python
-from sqlalchemy import Column, String, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
-from app.database import Base
-
-class UserDataset(Base):
-    __tablename__ = "user_datasets"
-    
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("auth.users.id"))
-    dataset_id = Column(String, nullable=False)
-    dataset_type = Column(String, nullable=False)
-    local_path = Column(String)
-    version = Column(String)
-    downloaded_at = Column(DateTime)
-    last_accessed = Column(DateTime)
-    
-    # Constraints
-    __table_args__ = (
-        UniqueConstraint('user_id', 'dataset_id', name='uq_user_dataset'),
-    )
-    
-    # Relationships
-    user = relationship("User", back_populates="datasets")
-```
-
-## Database Operations
-
-### Create Note
-
-```python
-from app.models.note import Note
-from app.database import SessionLocal
-
-db = SessionLocal()
-note = Note(
-    user_id=user.id,
-    dataset_id="BHSA",
-    reference="Genesis 1:1",
-    content="In the beginning..."
-)
-db.add(note)
-db.commit()
-```
-
-### Query Notes
-
-```python
-# Get all notes for a user
-notes = db.query(Note).filter(Note.user_id == user_id).all()
-
-# Get notes for specific reference
-notes = db.query(Note).filter(
-    Note.user_id == user_id,
-    Note.dataset_id == "BHSA",
-    Note.reference == "Genesis 1:1"
-).all()
-```
-
-### Update Note
-
-```python
-note = db.query(Note).filter(Note.id == note_id).first()
-note.content = "Updated content"
-note.updated_at = datetime.now()
-db.commit()
-```
-
-### Delete Note
-
-```python
-note = db.query(Note).filter(Note.id == note_id).first()
-db.delete(note)
-db.commit()
-```
 
 ## Migrations
 
@@ -307,7 +171,7 @@ alembic upgrade head
 alembic downgrade -1
 ```
 
-See [supabase/CLAUDE.md](../../supabase/CLAUDE.md) for Supabase-specific migrations.
+See @supabase/CLAUDE.md for Supabase-specific migrations.
 
 ## Row Level Security (RLS)
 
@@ -342,45 +206,10 @@ CREATE INDEX idx_notes_reference ON notes(reference);
 CREATE INDEX idx_notes_user_dataset ON notes(user_id, dataset_id);
 ```
 
-## Testing
-
-```python
-# Test note creation
-def test_create_note():
-    note = Note(
-        user_id=uuid.uuid4(),
-        dataset_id="TEST",
-        reference="Test 1:1",
-        content="Test note"
-    )
-    db.add(note)
-    db.commit()
-    
-    assert note.id is not None
-    assert note.created_at is not None
-
-# Test RLS
-def test_user_cannot_see_others_notes():
-    # Create note for user1
-    note1 = Note(user_id=user1_id, ...)
-    
-    # Try to query as user2
-    notes = db.query(Note).filter(Note.user_id == user2_id).all()
-    
-    assert note1 not in notes
-```
-
-## Related Documentation
-
-- [GraphQL API](../graphql/CLAUDE.md) - User data queries/mutations
-- [REST Routers](../routers/CLAUDE.md) - REST endpoints for user data
-- [Supabase](../../supabase/CLAUDE.md) - Database configuration and migrations
-- [SQLAlchemy Docs](https://docs.sqlalchemy.org/)
-
 ## Best Practices
 
 1. **Always use RLS**: Never rely solely on application-level security
-2. **Index frequently queried fields**: user_id, dataset_id, reference
+2. **Index queried fields**: user_id, dataset_id, reference
 3. **Use transactions**: Wrap related operations in transactions
 4. **Validate input**: Sanitize user input before database operations
 5. **Use CASCADE**: ON DELETE CASCADE for user data cleanup

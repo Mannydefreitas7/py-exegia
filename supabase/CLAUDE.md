@@ -1,10 +1,11 @@
 # Supabase Module
 
-Database, storage, authentication, and edge functions for the BiblePedia API.
+Database, storage, authentication, and edge functions for the Exegia API.
 
 ## Overview
 
 Supabase provides the backend infrastructure:
+
 - **Database**: PostgreSQL with Row Level Security (RLS)
 - **Storage**: Object storage for dataset files
 - **Auth**: User authentication and authorization
@@ -62,6 +63,7 @@ supabase/
 See [../app/models/CLAUDE.md](../app/models/CLAUDE.md) for detailed schema documentation.
 
 **Core Tables:**
+
 - `profiles` - User profiles (extends auth.users)
 - `notes` - User notes on passages
 - `favorites` - User favorite passages
@@ -243,29 +245,29 @@ Serverless functions running on Deno Deploy.
 ```typescript
 // supabase/functions/fetch-tf-dataset/index.ts
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 serve(async (req) => {
-  const { repo_url, dataset_id, version } = await req.json()
-  
+  const { repo_url, dataset_id, version } = await req.json();
+
   // 1. Clone Git repository
   const repo = await Deno.run({
-    cmd: ["git", "clone", repo_url, "/tmp/repo"]
-  })
-  
+    cmd: ["git", "clone", repo_url, "/tmp/repo"],
+  });
+
   // 2. Extract .tf files
-  const tfFiles = await extractTfFiles("/tmp/repo")
-  
+  const tfFiles = await extractTfFiles("/tmp/repo");
+
   // 3. Create ZIP
-  const zip = await createZip(tfFiles)
-  
+  const zip = await createZip(tfFiles);
+
   // 4. Upload to Storage
-  await uploadToStorage(zip, dataset_id)
-  
+  await uploadToStorage(zip, dataset_id);
+
   return new Response(JSON.stringify({ success: true }), {
-    headers: { "Content-Type": "application/json" }
-  })
-})
+    headers: { "Content-Type": "application/json" },
+  });
+});
 ```
 
 ### Deploy Function
@@ -292,7 +294,7 @@ response = supabase.functions.invoke("fetch-tf-dataset", {
 ```toml
 [project]
 id = "your-project-ref"
-name = "BiblePedia"
+name = "Exegia"
 
 [database]
 port = 54322
@@ -330,6 +332,7 @@ bunx supabase start
 Supabase Studio (local dashboard): **http://localhost:54323**
 
 Features:
+
 - Table editor
 - SQL editor
 - Storage browser

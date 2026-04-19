@@ -3,11 +3,11 @@ version: "3.8"
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: biblepedia_db
+    container_name: exegia_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: biblepedia
+      POSTGRES_DB: exegia
       POSTGRES_INITDB_ARGS: "-E UTF8"
     ports:
       - "5432:5432"
@@ -19,19 +19,19 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - biblepedia_network
+      - exegia_network
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: biblepedia_api
+    container_name: exegia_api
     environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/biblepedia
+      DATABASE_URL: ${DATABASE_URL}
       SUPABASE_URL: ${SUPABASE_URL:-}
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
-      SUPABASE_STORAGE_BUCKET: biblepedia-data
+      SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:5173}
       DATASETS_BASE_PATH: /app/datasets
@@ -52,12 +52,12 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - biblepedia_network
+      - exegia_network
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: biblepedia_redis
+    container_name: exegia_redis
     ports:
       - "6379:6379"
     volumes:
@@ -69,12 +69,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - biblepedia_network
+      - exegia_network
     restart: unless-stopped
 
   nginx:
     image: nginx:alpine
-    container_name: biblepedia_nginx
+    container_name: exegia_nginx
     ports:
       - "80:80"
       - "443:443"
@@ -84,7 +84,7 @@ services:
     depends_on:
       - api
     networks:
-      - biblepedia_network
+      - exegia_network
     restart: unless-stopped
     profiles:
       - production
@@ -98,5 +98,5 @@ volumes:
     driver: local
 
 networks:
-  biblepedia_network:
+  exegia_network:
     driver: bridge

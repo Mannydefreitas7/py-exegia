@@ -1,4 +1,4 @@
-# BiblePedia API - Development Guide
+# Exegia API - Development Guide
 
 ## Overview
 
@@ -10,6 +10,20 @@ This API serves as the backend for a desktop Bible study application with Text-F
 - **Strawberry GraphQL** - Primary API layer
 - **Context-Fabric** - Corpus query engine
 - **Supabase** - Database, storage, and authentication
+- **uv** - Python package manager (replaces pip/requirements.txt)
+
+## Quick Start
+
+```bash
+# Install dependencies
+uv sync
+
+# Run dev server
+uv run uvicorn app.main:app --reload
+
+# Run with Docker
+docker compose up -d
+```
 
 ## Quick Links
 
@@ -41,7 +55,7 @@ This API serves as the backend for a desktop Bible study application with Text-F
                     │ GraphQL / REST
                     │
 ┌───────────────────▼─────────────────────────────────────────┐
-│                  BiblePedia API (FastAPI)                    │
+│                  Exegia API (FastAPI)                       │
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │         Strawberry GraphQL (Primary)                │    │
 │  │  • Corpus queries (user-friendly)                   │    │
@@ -103,9 +117,10 @@ api/
 ├── docs/                     # Additional documentation
 │   ├── FRIENDLY_QUERIES.md   # Query implementation details
 │   └── QUERY_FLOW.md         # Architecture diagrams
-├── Dockerfile                # Docker build
+├── Dockerfile                # Docker build (uv-based)
 ├── docker-compose.yml        # Docker services
-└── requirements.txt          # Python dependencies
+├── pyproject.toml            # Project deps and config
+└── uv.lock                   # Locked dependency versions
 ```
 
 ## API Endpoints
@@ -139,9 +154,37 @@ See @app/graphql/CLAUDE.md for detailed API documentation.
 
 ### External Resources
 
+- **Text-Fabric**: https://github.com/annotation/text-fabric
 - **Context-Fabric Core**: https://context-fabric.ai/docs/core
 - **Context-Fabric Graph Model**: https://context-fabric.ai/docs/concepts/graph-model
+
 - **Strawberry GraphQL**: https://strawberry.rocks
 - **Supabase**: https://supabase.com/docs
 - **FastAPI**: https://fastapi.tiangolo.com
-- **Text-Fabric**: https://github.com/annotation/text-fabric
+- **uv**: https://docs.astral.sh/uv/
+
+## Package Management
+
+This project uses **uv** for Python package management.
+
+```bash
+# Install all deps (creates .venv automatically)
+uv sync
+
+# Install including dev deps
+uv sync --dev
+
+# Add a new dependency
+uv add <package>
+
+# Add a dev dependency
+uv add --dev <package>
+
+# Run a command inside the venv
+uv run <command>
+
+# Lock deps after changing pyproject.toml
+uv lock
+```
+
+Dependencies are declared in `pyproject.toml`. The `uv.lock` file pins exact versions for reproducible installs — commit both files.
