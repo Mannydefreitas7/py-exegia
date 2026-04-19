@@ -18,8 +18,8 @@ if settings.is_development:
     generate_ssl_cert()
 
 app = FastAPI(
-    title="BiblePedia API",
-    description="BiblePedia GraphQL API",
+    title="Exegia API",
+    description="Exegia GraphQL API",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -45,7 +45,7 @@ async def health() -> dict[str, str]:
 
 @app.get("/", tags=["Health"], include_in_schema=False)
 async def root() -> dict[str, str]:
-    return {"message": "BiblePedia API — see /docs for API reference"}
+    return {"message": "Exegia API — see /docs for API reference"}
 
 
 if __name__ == "__main__":

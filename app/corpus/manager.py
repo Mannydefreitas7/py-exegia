@@ -28,7 +28,7 @@ class CorpusManager:
         Args:
             base_path: Base directory where datasets are stored locally
         """
-        self.base_path = base_path or Path.home() / ".biblepedia" / "datasets"
+        self.base_path = base_path or Path.home() / ".exegia" / "datasets"
         self._loaded_corpora: Dict[str, Fabric] = {}
 
         # Ensure base path exists

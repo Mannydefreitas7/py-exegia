@@ -4,7 +4,7 @@ Strawberry GraphQL layer that provides user-friendly, type-safe access to Contex
 
 ## Overview
 
-This module exposes the BiblePedia API through a modern GraphQL interface, abstracting the technical Context-Fabric query syntax into intuitive, parameter-based queries.
+This module exposes the Exegia API through a modern GraphQL interface, abstracting the technical Context-Fabric query syntax into intuitive, parameter-based queries.
 
 ## Architecture
 
@@ -67,103 +67,6 @@ schema = strawberry.Schema(query=Query, mutation=Mutation)
 - **Feature Filters**: Filter by grammatical, semantic, or structural properties
 - **Hierarchical Patterns**: Define parent-child relationships with order constraints
 - **Text Search**: Simple text-based searches across node types
-
-### Available Queries
-
-#### Simple Search
-
-```graphql
-query FindVerbs {
-  corpus {
-    searchSimple(datasetId: "BHSA", nodeType: WORD, features: [{ name: "pos", value: "verb" }], limit: 10) {
-      reference
-      text
-      nodes {
-        nodeId
-        text
-        feature(name: "lemma")
-      }
-    }
-  }
-}
-```
-
-#### Hierarchical Search
-
-```graphql
-query SubjectPredicate {
-  corpus {
-    searchHierarchical(
-      datasetId: "BHSA"
-      pattern: {
-        root: { nodeType: CLAUSE }
-        children: [
-          { root: { nodeType: PHRASE, features: [{ name: "function", value: "subject" }] } }
-          { root: { nodeType: PHRASE, features: [{ name: "function", value: "predicate" }] } }
-        ]
-      }
-      limit: 10
-    ) {
-      reference
-      text
-      matchCount
-    }
-  }
-}
-```
-
-#### Text Search
-
-```graphql
-query SearchText {
-  corpus {
-    searchText(datasetId: "KJV", text: "love", nodeType: VERSE, limit: 20) {
-      reference
-      text
-    }
-  }
-}
-```
-
-#### Navigation
-
-```graphql
-# Get containing verse
-query {
-  corpus {
-    getContainingNodes(datasetId: "BHSA", nodeId: 12345, nodeType: VERSE) {
-      nodeId
-      text
-    }
-  }
-}
-
-# Get contained words
-query {
-  corpus {
-    getContainedNodes(datasetId: "BHSA", nodeId: 67890, nodeType: WORD) {
-      nodeId
-      text
-      features
-    }
-  }
-}
-```
-
-#### Corpus Info
-
-```graphql
-query {
-  corpus {
-    getCorpusInfo(datasetId: "BHSA") {
-      datasetId
-      nodeTypes
-      features
-      totalSlots
-    }
-  }
-}
-```
 
 ## GraphQL Types (`types/corpus.py`)
 
@@ -328,8 +231,7 @@ Open GraphiQL at **http://localhost:8000/graphql**
 
 Try example queries from:
 
-- [CORPUS_QUERY_EXAMPLES.md](../corpus/EXAMPLES.md)
-- [QUICKSTART_CORPUS.md](../../QUICKSTART_CORPUS.md)
+- @./app/corpus/EXAMPLES.md
 
 ## Benefits
 
@@ -339,15 +241,9 @@ Try example queries from:
 ✅ **Documentation** - Self-documenting through schema
 ✅ **IDE Support** - Autocomplete and inline docs
 
-## Related Documentation
-
-- [Corpus Integration](../corpus/CLAUDE.md) - Context-Fabric API
-- [Query Flow](../../docs/QUERY_FLOW.md) - Architecture visualization
-- [Strawberry Docs](https://strawberry.rocks)
-
 ## Common Patterns
 
-See [CORPUS_QUERY_EXAMPLES.md](../corpus/EXAMPLES.md) for:
+See **QUERY_EXAMPLES** for:
 
 - Word studies
 - Finding questions

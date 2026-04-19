@@ -1,6 +1,6 @@
 # Context-Fabric Corpus Integration
 
-This module integrates the Context-Fabric Python API with the BiblePedia backend, enabling powerful corpus queries through a user-friendly GraphQL interface.
+This module integrates the Context-Fabric Python API with the Exegia backend, enabling powerful corpus queries through a user-friendly GraphQL interface.
 
 ## Overview
 
@@ -118,6 +118,7 @@ for verse in corpus.N.walk(otype="verse"):
 The Strawberry GraphQL API provides a user-friendly wrapper around these low-level APIs.
 
 See:
+
 - `app/graphql/resolvers/corpus_query.py` - GraphQL resolvers
 - `app/graphql/types/corpus.py` - GraphQL types
 - `CORPUS_QUERY_EXAMPLES.md` - Usage examples
@@ -165,7 +166,7 @@ for (word_node,) in results:
     lemma = corpus.F.lemma.v(word_node)
     text = corpus.T.text(word_node)
     verse_nodes = corpus.L.u(word_node, otype="verse")
-    
+
     if verse_nodes:
         verse_text = corpus.T.text(verse_nodes[0])
         print(f"{lemma}: {text} in {verse_text}")
@@ -179,10 +180,7 @@ query FindPastTenseVerbs {
     searchSimple(
       datasetId: "BHSA"
       nodeType: WORD
-      features: [
-        {name: "pos", value: "verb"},
-        {name: "tense", value: "past"}
-      ]
+      features: [{ name: "pos", value: "verb" }, { name: "tense", value: "past" }]
       limit: 10
     ) {
       reference

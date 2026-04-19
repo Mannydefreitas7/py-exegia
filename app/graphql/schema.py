@@ -1,7 +1,7 @@
 """
 Main Strawberry GraphQL Schema
 
-Defines the GraphQL API schema for BiblePedia.
+Defines the GraphQL API schema for Exegia.
 """
 
 from typing import List, Optional
@@ -49,8 +49,8 @@ from app.graphql.types.dataset import (
 )
 from app.graphql.types.user import (
     Comment,
-    CommentsList,
     CommentsFilterInput,
+    CommentsList,
     CreateCommentInput,
     CreateFavoriteInput,
     CreateNoteInput,
@@ -58,11 +58,11 @@ from app.graphql.types.user import (
     DeleteFavoriteInput,
     DeleteNoteInput,
     Favorite,
-    FavoritesList,
     FavoritesFilterInput,
+    FavoritesList,
     Note,
-    NotesList,
     NotesFilterInput,
+    NotesList,
     UpdateCommentInput,
     UpdateNoteInput,
     UpdateUserProfileInput,
@@ -285,9 +285,7 @@ class Query:
         return await resolve_corpus_stats(dataset_id)
 
     @strawberry.field
-    async def search_corpus(
-        self, input: SearchCorpusInput
-    ) -> SearchResults:
+    async def search_corpus(self, input: SearchCorpusInput) -> SearchResults:
         """
         Search within a corpus for matching verses.
 
@@ -332,9 +330,7 @@ class Query:
         return await resolve_get_passages(input)
 
     @strawberry.field
-    async def get_verse(
-        self, dataset_id: str, reference: str
-    ) -> Optional[Verse]:
+    async def get_verse(self, dataset_id: str, reference: str) -> Optional[Verse]:
         """
         Get a single verse by reference.
 
@@ -350,9 +346,7 @@ class Query:
         return await resolve_get_verse(dataset_id, reference)
 
     @strawberry.field
-    async def get_verse_range(
-        self, input: GetVerseRangeInput
-    ) -> List[Verse]:
+    async def get_verse_range(self, input: GetVerseRangeInput) -> List[Verse]:
         """
         Get a range of verses.
 
@@ -382,9 +376,7 @@ class Query:
         return await resolve_word_study(input)
 
     @strawberry.field
-    async def compare_passages(
-        self, input: ComparePassagesInput
-    ) -> ParallelPassage:
+    async def compare_passages(self, input: ComparePassagesInput) -> ParallelPassage:
         """
         Compare a passage across multiple datasets.
 
@@ -529,9 +521,7 @@ class Mutation:
         return await resolve_update_profile(info, input)
 
     @strawberry.mutation
-    async def create_note(
-        self, info: strawberry.Info, input: CreateNoteInput
-    ) -> Note:
+    async def create_note(self, info: strawberry.Info, input: CreateNoteInput) -> Note:
         """
         Create a new note.
 
@@ -546,18 +536,14 @@ class Mutation:
         return await resolve_create_note(info, input)
 
     @strawberry.mutation
-    async def update_note(
-        self, info: strawberry.Info, input: UpdateNoteInput
-    ) -> Note:
+    async def update_note(self, info: strawberry.Info, input: UpdateNoteInput) -> Note:
         """Update an existing note."""
         from app.graphql.resolvers.users import resolve_update_note
 
         return await resolve_update_note(info, input)
 
     @strawberry.mutation
-    async def delete_note(
-        self, info: strawberry.Info, input: DeleteNoteInput
-    ) -> bool:
+    async def delete_note(self, info: strawberry.Info, input: DeleteNoteInput) -> bool:
         """Delete a note."""
         from app.graphql.resolvers.users import resolve_delete_note
 
