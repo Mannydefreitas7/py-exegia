@@ -5,8 +5,8 @@ uvicorn[standard]>=0.30.0
 # GraphQL
 strawberry-graphql[fastapi]>=0.314.0
 
-# Context-Fabric for biblical text analysis
-context-fabric>=0.5.7
+# Text-Fabric for biblical corpus analysis
+text-fabric>=13.0.0
 
 # Database
 sqlalchemy[asyncio]>=2.0.0
@@ -28,6 +28,7 @@ python-dotenv>=1.0.0
 # Authentication
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
+pyOpenSSL>=23.0.0
 
 # Utilities
 python-multipart>=0.0.9
