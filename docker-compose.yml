@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: biblepedia_db
@@ -14,7 +13,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./supabase/migrations:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -23,30 +21,20 @@ services:
     networks:
       - biblepedia_network
 
-  # BiblePedia API (FastAPI + Strawberry GraphQL)
   api:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: biblepedia_api
     environment:
-      # Database
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/biblepedia
-
-      # Supabase (use local or remote)
-      SUPABASE_URL: ${SUPABASE_URL:-http://localhost:54321}
-      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
       SUPABASE_STORAGE_BUCKET: biblepedia-data
-
-      # App Configuration
       ENVIRONMENT: ${ENVIRONMENT:-development}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:5173}
-
-      # Dataset Storage
       DATASETS_BASE_PATH: /app/datasets
-
-      # Context-Fabric
       TEXT_FABRIC_DATA: /app/datasets
     ports:
       - "8000:8000"
@@ -67,27 +55,6 @@ services:
       - biblepedia_network
     restart: unless-stopped
 
-  # PgAdmin for database management
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: biblepedia_pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@biblepedia.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json
-    depends_on:
-      - postgres
-    networks:
-      - biblepedia_network
-    restart: unless-stopped
-
-  # Redis for caching (optional but recommended)
   redis:
     image: redis:7-alpine
     container_name: biblepedia_redis
@@ -105,7 +72,6 @@ services:
       - biblepedia_network
     restart: unless-stopped
 
-  # Nginx reverse proxy (optional, for production-like setup)
   nginx:
     image: nginx:alpine
     container_name: biblepedia_nginx
@@ -126,14 +92,8 @@ services:
 volumes:
   postgres_data:
     driver: local
-  pgadmin_data:
-    driver: local
   datasets_volume:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${DATASETS_PATH:-./datasets}
   redis_data:
     driver: local
 
