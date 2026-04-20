@@ -61,7 +61,6 @@ dev = [
 exegia-graphql = { workspace = true }
 exegia-corpus  = { workspace = true }
 exegia-models  = { workspace = true }
-exegia-routers = { workspace = true }
 exegia-schemas = { workspace = true }
 exegia-storage = { workspace = true }
 
