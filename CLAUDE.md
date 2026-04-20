@@ -37,8 +37,6 @@ docker compose up -d
   @packages/storage/CLAUDE.md
 - **Database Models** - SQLAlchemy models and schema
   @packages/models/CLAUDE.md
-- **REST Routers** - FastAPI REST endpoints
-  @packages/routers/CLAUDE.md
 - **Supabase** - Database migrations and edge functions
   @src/supabase/CLAUDE.md
 - **Auth** - Supabase JWT authentication and FastAPI dependencies

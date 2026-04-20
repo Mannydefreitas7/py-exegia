@@ -12,17 +12,19 @@ This API serves as the backend for a desktop Bible study application with Text-F
 - **Strawberry GraphQL** - Primary API layer
 - **Context-Fabric** - Corpus query engine
 - **Supabase** - Database, storage, and authentication
+- **uv** - Python package manager (workspace-based)
 
 ## Quick Links
 
 ### Module Documentation
 
-- **[GraphQL API](app/graphql/CLAUDE.md)** - Strawberry GraphQL schema, types, resolvers
-- **[Corpus Integration](app/corpus/CLAUDE.md)** - Context-Fabric integration and queries
-- **[Storage Service](app/storage/CLAUDE.md)** - Supabase storage for datasets
-- **[Database Models](app/models/CLAUDE.md)** - SQLAlchemy models and schema
-- **[REST Routers](app/routers/CLAUDE.md)** - FastAPI REST endpoints
-- **[Supabase](supabase/CLAUDE.md)** - Database migrations and edge functions
+- **[GraphQL API](packages/graphql/CLAUDE.md)** - Strawberry GraphQL schema, types, resolvers
+- **[Corpus Integration](packages/corpus/CLAUDE.md)** - Context-Fabric integration and queries
+- **[Storage Service](packages/storage/CLAUDE.md)** - Supabase storage for datasets
+- **[Database Models](packages/models/CLAUDE.md)** - SQLAlchemy models and schema
+- **[REST Routers](packages/routers/CLAUDE.md)** - FastAPI REST endpoints
+- **[Supabase](src/supabase/CLAUDE.md)** - Database migrations and edge functions
+- **[Auth](src/supabase/auth/CLAUDE.md)** - Supabase JWT authentication and FastAPI dependencies
 
 ## Architecture
 
@@ -30,24 +32,19 @@ This API serves as the backend for a desktop Bible study application with Text-F
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Desktop Client App                       │
-│              (Electrobun, Tauri, or Native)                 │
+│                    Desktop Client App                        │
+│              (Electron, Tauri, or Native)                    │
 └───────────────────┬─────────────────────────────────────────┘
                     │
                     │ GraphQL / REST
                     │
 ┌───────────────────▼─────────────────────────────────────────┐
-│                  Exegia API (FastAPI)                       │
+│                  Exegia API (FastAPI)                        │
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │         Strawberry GraphQL (Primary)                │    │
 │  │  • Corpus queries (user-friendly)                   │    │
 │  │  • User data (notes, favorites)                     │    │
 │  │  • Dataset management                               │    │
-│  └─────────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │         REST Endpoints (Legacy/Compat)              │    │
-│  │  • Dataset downloads                                │    │
-│  │  • Health checks                                    │    │
 │  └─────────────────────────────────────────────────────┘    │
 └───────────────────┬─────────────────┬───────────────────────┘
                     │                 │
@@ -70,7 +67,7 @@ This API serves as the backend for a desktop Bible study application with Text-F
 
 ### Python (Backend)
 
-Python 3.12+ for the FastAPI backend:
+Python 3.13+ with a uv workspace:
 
 - **FastAPI** - Web framework
 - **Strawberry GraphQL** - GraphQL schema and resolvers
@@ -78,53 +75,61 @@ Python 3.12+ for the FastAPI backend:
 - **Supabase Python Client** - Database and storage operations
 - **SQLAlchemy** - ORM for database models
 
-### Bun (Tooling & Scripts)
+### uv (Package & Script Management)
 
-Default to using Bun for Node.js scripts and tooling:
+Default to using uv for all Python tooling:
 
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun install` instead of `npm install`
-- Use `bun run <script>` instead of `npm run <script>`
-- Use `bunx <package>` instead of `npx <package>`
-- Bun automatically loads .env, so don't use dotenv
+- Use `uv run <script>` instead of `python <script>`
+- Use `uv run pytest` instead of `pytest` directly
+- Use `uv add <package>` instead of `pip install`
+- Use `uv add --dev <package>` for dev-only dependencies
+- Use `uv sync` to install all workspace dependencies
+- Use `uv lock` after changing `pyproject.toml`
 
 ## Project Structure
 
 ```
-api/
-├── app/
-│   ├── graphql/              # → See app/graphql/CLAUDE.md
-│   │   ├── schema.py         # Main Strawberry schema
-│   │   ├── types/            # GraphQL types
-│   │   └── resolvers/        # Query/Mutation resolvers
-│   ├── corpus/               # → See app/corpus/CLAUDE.md
-│   │   ├── manager.py        # Corpus loading and caching
-│   │   └── query.py          # Query utilities
-│   ├── storage/              # → See app/storage/CLAUDE.md
-│   │   ├── datasets.py       # Dataset download/upload
-│   │   └── git_fetch.py      # Git repo fetching
-│   ├── models/               # → See app/models/CLAUDE.md
-│   │   ├── user.py           # User model
-│   │   ├── note.py           # Notes model
-│   │   └── favorite.py       # Favorites model
-│   ├── routers/              # → See app/routers/CLAUDE.md
-│   │   ├── datasets.py       # Dataset management
-│   │   └── user_data.py      # User notes/favorites
-│   ├── auth.py               # Supabase auth integration
-│   ├── config.py             # Configuration
-│   ├── database.py           # Database connections
-│   └── main.py               # FastAPI app entry point
-├── supabase/                 # → See supabase/CLAUDE.md
-│   ├── migrations/           # Database migrations
-│   ├── functions/            # Edge functions
-│   └── config.toml           # Supabase config
-├── docs/                     # Additional documentation
-│   ├── FRIENDLY_QUERIES.md   # Query implementation details
-│   └── QUERY_FLOW.md         # Architecture diagrams
-├── Dockerfile                # Docker build
-├── docker-compose.yml        # Docker services
-└── requirements.txt          # Python dependencies
+api/                              # uv workspace root
+├── packages/                     # Workspace members (editable installs)
+│   ├── graphql/                  # → See packages/graphql/CLAUDE.md
+│   │   ├── pyproject.toml
+│   │   └── src/
+│   │       ├── schema.py         # Strawberry schema + GraphQLRouter
+│   │       ├── types/            # Corpus, dataset, user GQL types
+│   │       └── resolvers/        # Query/mutation implementations
+│   ├── corpus/                   # → See packages/corpus/CLAUDE.md
+│   │   ├── pyproject.toml
+│   │   └── src/
+│   │       └── manager.py        # Corpus loading and caching
+│   ├── models/                   # → See packages/models/CLAUDE.md
+│   │   ├── pyproject.toml
+│   │   └── src/                  # book.py, note.py, user.py …
+│   ├── schemas/
+│   │   ├── pyproject.toml
+│   │   └── src/                  # dataset.py, library.py …
+│   ├── storage/                  # → See packages/storage/CLAUDE.md
+│   │   ├── pyproject.toml
+│   │   └── src/
+│   │       └── datasets.py       # Supabase dataset operations
+│   └── routers/                  # → See packages/routers/CLAUDE.md
+│       ├── pyproject.toml
+│       └── src/
+├── src/                          # Root app module
+│   ├── supabase/                 # → See src/supabase/CLAUDE.md
+│   │   ├── auth/                 # → See src/supabase/auth/CLAUDE.md
+│   │   ├── migrations/           # Supabase migrations
+│   │   └── config.toml           # Supabase config
+│   ├── alembic/                  # Alembic migrations
+│   ├── services/                 # Internal services (epub, git, etc.)
+│   ├── utils/                    # Utilities (ssl_cert, storage_client)
+│   ├── auth.py                   # Re-export shim → src.supabase.auth
+│   ├── config.py                 # App settings (pydantic-settings)
+│   ├── database.py               # SQLAlchemy async engine + Base
+│   └── main.py                   # FastAPI app entry point
+├── Dockerfile                    # Docker build (uv-based)
+├── docker-compose.yml            # Docker services
+├── pyproject.toml                # Workspace root + exegia-api deps
+└── uv.lock                       # Shared workspace lockfile
 ```
 
 ## Quick Start
@@ -132,22 +137,14 @@ api/
 ### Local Development
 
 ```bash
-# Install Python dependencies
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# Install Bun dependencies
-bun install
-
-# Start Supabase (local)
-bun run db:start
-
-# Run migrations
-bun run db:migrate
+# Install all workspace dependencies
+uv sync
 
 # Start development server
-bun run dev
+uv run uvicorn src.main:app --reload
+
+# Run migrations
+uv run alembic upgrade head
 ```
 
 Server runs on: **http://localhost:8000**
@@ -161,28 +158,7 @@ GraphiQL playground: **http://localhost:8000/graphql**
 docker build -t exegia-api .
 
 # Run with docker-compose
-docker-compose up -d
-```
-
-### Environment Variables
-
-Required in `.env`:
-
-```env
-# Supabase
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_ANON_KEY=xxx
-SUPABASE_SERVICE_ROLE_KEY=xxx
-
-# Database
-DATABASE_URL=postgresql://...
-
-# App
-ENVIRONMENT=development
-CORS_ORIGINS=http://localhost:3000
-
-# Dataset Storage
-DATASETS_BASE_PATH=/app/datasets
+docker compose up -d
 ```
 
 ## API Endpoints
@@ -192,11 +168,11 @@ DATASETS_BASE_PATH=/app/datasets
 - **POST /graphql** - Strawberry GraphQL endpoint
 - **GET /graphql** - GraphiQL interactive playground
 
-See **[app/graphql/CLAUDE.md](app/graphql/CLAUDE.md)** for detailed API documentation.
+See **[packages/graphql/CLAUDE.md](packages/graphql/CLAUDE.md)** for detailed API documentation.
 
 ## Key Principles
 
-1. **GraphQL First**: Primary API is GraphQL, REST for legacy support
+1. **GraphQL**: Primary API is GraphQL
 2. **User Data in Supabase**: All user-specific data stored in PostgreSQL
 3. **Datasets in Storage**: Binary datasets (ZIP files) in Supabase Storage buckets
 4. **Local Corpus Access**: Context-Fabric operates on locally extracted datasets
@@ -215,11 +191,8 @@ See **[app/graphql/CLAUDE.md](app/graphql/CLAUDE.md)** for detailed API document
 ## Testing
 
 ```bash
-# Python tests
-pytest
-
-# Bun tests (if applicable)
-bun test
+# Run tests
+uv run pytest
 
 # Test GraphQL queries
 # Open http://localhost:8000/graphql and try example queries
@@ -229,21 +202,22 @@ bun test
 
 ### Module-Specific
 
-- **[GraphQL API](app/graphql/CLAUDE.md)** - Schema, types, resolvers, user-friendly queries
-- **[Corpus Integration](app/corpus/CLAUDE.md)** - Context-Fabric API, corpus management
-- **[Storage Service](app/storage/CLAUDE.md)** - Dataset downloads, Supabase Storage
-- **[Database Models](app/models/CLAUDE.md)** - Schema, migrations, models
-- **[REST Routers](app/routers/CLAUDE.md)** - REST endpoints, authentication
-- **[Supabase](supabase/CLAUDE.md)** - Migrations, functions, configuration
+- **[GraphQL API](packages/graphql/CLAUDE.md)** - Schema, types, resolvers, user-friendly queries
+- **[Corpus Integration](packages/corpus/CLAUDE.md)** - Context-Fabric API, corpus management
+- **[Storage Service](packages/storage/CLAUDE.md)** - Dataset downloads, Supabase Storage
+- **[Database Models](packages/models/CLAUDE.md)** - Schema, migrations, models
+- **[REST Routers](packages/routers/CLAUDE.md)** - REST endpoints, authentication
+- **[Supabase](src/supabase/CLAUDE.md)** - Migrations, functions, configuration
 
 ### External Resources
 
+- **Text-Fabric**: https://github.com/annotation/text-fabric
 - **Context-Fabric Core**: https://context-fabric.ai/docs/core
 - **Context-Fabric Graph Model**: https://context-fabric.ai/docs/concepts/graph-model
 - **Strawberry GraphQL**: https://strawberry.rocks
 - **Supabase**: https://supabase.com/docs
 - **FastAPI**: https://fastapi.tiangolo.com
-- **Text-Fabric**: https://github.com/annotation/text-fabric
+- **uv**: https://docs.astral.sh/uv/
 
 ## Contributing
 
@@ -251,10 +225,6 @@ When adding new features:
 
 1. Update relevant module `CLAUDE.md` file
 2. Add GraphQL types/resolvers for new queries
-3. Update `app/corpus/EXAMPLES.md` if adding query features
+3. Update `packages/corpus/EXAMPLES.md` if adding query features
 4. Add tests for new functionality
-5. Update this main `CLAUDE.md` if architecture changes
-
-## License
-
-[Add your license here]
+5. Update this `README.md` if architecture changes
