@@ -1,3 +1,6 @@
 {
-  "project_name": "py-exegia"
+  "project_name": "py-exegia",
+  "language_servers": [
+    "...", "!biome"
+  ]
 }
