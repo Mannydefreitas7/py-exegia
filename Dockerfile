@@ -30,19 +30,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies in a separate layer for caching.
-# Bind-mount pyproject.toml and uv.lock so they don't need to be copied yet.
+# Bind-mount the workspace root and all member pyproject.toml files so they
+# don't need to be copied yet, while still resolving the full workspace graph.
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=packages/corpus/pyproject.toml,target=packages/corpus/pyproject.toml \
+    --mount=type=bind,source=packages/graphql/pyproject.toml,target=packages/graphql/pyproject.toml \
+    --mount=type=bind,source=packages/models/pyproject.toml,target=packages/models/pyproject.toml \
+    --mount=type=bind,source=packages/routers/pyproject.toml,target=packages/routers/pyproject.toml \
+    --mount=type=bind,source=packages/schemas/pyproject.toml,target=packages/schemas/pyproject.toml \
+    --mount=type=bind,source=packages/storage/pyproject.toml,target=packages/storage/pyproject.toml \
     uv sync --locked --no-install-project --no-dev
 
-# Copy project files and application code
-COPY pyproject.toml uv.lock deno.json ./
-COPY app/ ./app/
-COPY alembic/ ./alembic/
-COPY alembic.ini .
+# Copy workspace metadata and all source code
+COPY pyproject.toml uv.lock deno.json alembic.ini ./
+COPY packages/ ./packages/
+COPY src/ ./src/
 
-# Install the project itself (without dev deps)
+# Install the workspace (all members + root project, without dev deps)
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
@@ -61,4 +67,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
